@@ -1,0 +1,43 @@
+#+TITLE: Workstation - Felix
+#+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
+#+PROPERTY: header-args :tangle-mode (identity #o555)
+
+* Table of Contents
+:PROPERTIES:
+:TOC: :include all :ignore this
+:END
+
+* Home Configuration
+#+NAME: home-config
+#+BEGIN_SRC scheme
+(use-modules (gnu home)
+             (gnu home-services)
+             (gnu home-services shells)
+             (gnu services)
+             (gnu packages admin)
+             (guix gexp))
+
+(felix-operating-system
+(inherit desktop-operating-system))
+
+(home-environment
+ (packages (list htop))
+ (services
+  (list
+
+   (service home-keyboard-service-type
+           (keyboard-layout (keyboard-layout "us"
+                                    ;;#:model "thinkpad"
+                                    #:options '("ctrl:nocaps"))))
+   (service home-bash-service-type
+            (home-bash-configuration
+             (guix-defaults? #t)
+             (bash-profile '("\
+                export HISTFILE=$XDG_CACHE_HOME/.bash_history"))))
+
+   (simple-service 'test-config
+                   home-files-service-type
+                   (list `("config/openbox/rc.xml"
+                           ,(plain-file "tmp-file.txt"
+                                        "the content of ~/.config/test.conf")))))))
+#+END_SRC

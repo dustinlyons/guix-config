@@ -1,0 +1,936 @@
+#+TITLE: Workstation - Desktop
+#+PROPERTY: header-args :mkdirp yes
+#+PROPERTY: header-args:sh :tangle-mode (identity #o555)
+#+PROPERTY: header-args:conf :tangle-mode (identity #o555)
+
+* Table of Contents
+:PROPERTIES:
+:TOC: :include all :ignore this
+:END
+:CONTENTS:
+
+* Introduction
+
+** What is this?
+
+My entire operating system configuration (guix) with all of my dotfiles defined in Scheme.
+
+** Why?
+
+Reproducible, determinstic builds and our ability to simply declare the state of things has matured so much I had to give this experiment a try. With everything defined in this way, without pulling my hair out I can treat my system as one program, instead of a scattering of dependencies that don't know about each other.
+
+Moreover, every change to my system is now deployed from the [[guix store][guix store]] thanks to [[guix home][guix home]]. This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness.
+
+Other advantages: theming now becomes easier. It's all here, and I can define one set of colors to be used literally everywhere.
+
+** Okay, I'm intrigured. Anything else?
+
+This file is very large, don't be alarmed. In my editor code sections fold by default, so if you're reading this in code, maybe try reading the rendered org version. The dotfiles, shell scripts, etc. you see below get tangled in later. (see [[org-babel][org-babel]] for more info on tangling)
+
+** Thank you 
+
+*** System Crafters
+
+Thank you [[https://github.com/daviwil][David Wilson]], your incredible video series on Emacs, Guix, and your sample configurations broght me down this journey.
+
+If you want a crash course into these tools, check out his YouTube series.
+
+* Operating System Definition
+
+This base definition outlines reasonable choices for using Linux as a Desktop environment in 2021. This is not likely to change anytime soon; I leave more user specific configuration up to implementations of this.
+
+Note we inherit this definition from the base [[#Workstation][Workstation]] definition.
+
+** Dependencies
+Define all dependencies we need to to build the base definition.
+#+NAME: base-definition
+#+BEGIN_SRC scheme  :tangle build/guix/desktop.scm
+(define-module (desktop)
+  #:use-module (workstation)
+  #:use-module (srfi srfi-1) ;; We use srf1 for the remove function
+  #:use-module (guix transformations)
+  #:use-module (guix channels)
+  #:use-module (gnu packages bash)
+  #:use-module (gnu packages linux)
+  #:use-module (gnu services cups)
+  #:use-module (gnu packages cups)
+  #:use-module (gnu services xorg)
+  #:use-module (gnu packages xorg)
+  #:use-module (gnu services linux)
+  #:use-module (gnu services desktop)
+  #:use-module (nongnu packages nvidia)
+  #:use-module (gnu))
+
+(define transform
+  (options->transformation
+    '((with-graft . "mesa=nvda"))))
+#+END_SRC
+
+** Base Definition
+#+NAME: base-definition
+#+BEGIN_SRC scheme  :tangle build/guix/desktop.scm
+(operating-system
+ (inherit base-operating-system)
+ (host-name "desktop")
+#+END_SRC
+
+** Kernel 
+Kernel modules and associated configuration. We remove the community nvidia-driver (nouveau) and use the offficial (non-free) one instead.
+#+NAME: kernel
+#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+  (kernel-arguments
+    (append
+      '("modprobe.blacklist=nouveau") ;; Use nvidia-driver instead 
+      %default-kernel-arguments))
+
+  (kernel-loadable-modules (list nvidia-driver))
+#+END_SRC
+
+** Network
+#+NAME: network 
+#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+  ;; Allow resolution of '.local' host names with mDNS
+  (name-service-switch %mdns-host-lookup-nss)
+#+END_SRC
+
+** File Systems
+*** btrfs
+We use btrfs on all Workstations. btrfs is great for the following reasons:
+
+- Copy on Write: Although each workstation has their own Home directory and associated dotfiles, I share my user state across machines. CoW supports shipping data back to my home-lab hypervisor.
+
+- Snapshots: btrfs' writeable snapshots allow us to rollback state 
+
+#+NAME: file-systems-btrfs 
+#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+  ;; File partitions, filesystems
+  (file-systems
+    (cons* (file-system ;; One big fat btrfs partition for our stuff
+             (mount-point "/")
+             (device (uuid "3fdd9ded-2779-4401-8b3f-b5a9179a5a6f" 'btrfs))
+             (type "btrfs"))
+
+#+END_SRC
+
+*** UEFI
+Guix needs to reference the filesystem on disk, we use an UUID to identify it.
+#+NAME: file-systems-uefi
+#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+           (file-system ;; UEFI boot partition
+             (mount-point "/boot/efi")
+             (device (uuid "1F00-ED40" 'fat32))
+             (type "vfat"))
+           %base-file-systems))
+#+END_SRC
+
+** Users
+Setup the one user, me, and establish a core set of groups.
+#+NAME: users
+#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+  ;; @todo: Move to guix-home, move packages to profile manifests
+  ;; Users, home directories, groups, etc.
+  (users (cons* (user-account
+                  (name "dustin") ;; It me
+                  (comment "Dustin")
+                  (group "users")
+                  (home-directory "/home/dustin")
+                  (supplementary-groups
+                    '("wheel" "netdev" "audio" "video" "lp")))
+                %base-user-accounts))
+#+END_SRC
+
+** Packages
+We save most of the package loading for our independent machine definitions. However, here is a base set of packages for my Desktop that shouldn't change that often.
+
+#+NAME: packages 
+#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+  ;; Install a base set of Desktop packages
+  (packages (append (map specification->package 
+		'("openbox" "htop" "git" "gnupg" "nss-certs" "vim" "emacs" "polybar" "rofi" "firefox" "xf86-input-libinput" "gvfs")) %base-packages))
+
+#+END_SRC
+
+*** Services
+**** Shepherd
+#+NAME: services-shepherd 
+#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+  (services (cons* (service special-files-service-type
+	    `(("/bin/sh" ,(file-append bash "/bin/bash"))
+	      ("/bin/bash" ,(file-append bash "/bin/bash"))
+              ("/usr/bin/env" ,(file-append coreutils "/bin/env"))))
+	   
+          (simple-service 'custom-udev-rules udev-service-type 
+            (list nvidia-driver))
+
+          (service kernel-module-loader-service-type
+            '("ipmi_devintf"
+	      "nvidia"
+	      "nvidia_modeset"
+	      "nvidia_uvm"))
+
+	  (service cups-service-type
+	    (cups-configuration
+	      (web-interface? #t)
+	      (extensions
+		(list cups-filters brlaser))))
+
+          (service slim-service-type (slim-configuration
+            (display ":0")
+            (vt "vt8")
+            (xorg-configuration (xorg-configuration
+                                  (keyboard-layout (keyboard-layout "us"))
+                                  (modules
+				    (cons* nvidia-driver %default-xorg-modules))
+                                  (server (transform xorg-server))
+                                  (drivers '("nvidia"))))))
+
+          (remove (lambda (service)
+            (eq? (service-kind service) gdm-service-type))
+		  %desktop-services))))
+
+#+END_SRC
+
+*** Display
+**** Brightness 
+**** Compositor
+
+* X Window System Components
+
+** Theming
+*** Colors
+*** GTK
+*** Fonts
+
+** Window Manager
+*** Openbox
+
+I use Openbox primarily on my Desktop, as I find window managers to be too restrictive to free thought. I'm all for winning at vim golf but the mouse does have a place for a little bit of meandering. I meander on my Desktop.
+
+**** *config-desktop/openbox/rc.xml*
+rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement, and display settings.
+#+BEGIN_SRC xml :visiblity folded :tangle build/openbox/rc.xml
+<?xml version="1.0"?>
+<openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <resistance>
+    <strength>10</strength>
+    <screen_edge_strength>20</screen_edge_strength>
+  </resistance>
+  <focus>
+    <focusNew>yes</focusNew>
+    <followMouse>no</followMouse>
+    <focusLast>yes</focusLast>
+    <underMouse>no</underMouse>
+    <focusDelay>200</focusDelay>
+    <raiseOnFocus>no</raiseOnFocus>
+  </focus>
+  <placement>
+    <policy>Smart</policy>
+    <center>yes</center>
+    <monitor>Mouse</monitor>
+    <primaryMonitor>Mouse</primaryMonitor>
+  </placement>
+  <theme>
+    <name>Kaunas</name>
+    <titleLayout>LSC</titleLayout>
+    <keepBorder>yes</keepBorder>
+    <animateIconify>yes</animateIconify>
+    <font place="ActiveWindow">
+      <name>Arial Narrow Condensed</name>
+      <size>9</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <font place="InactiveWindow">
+      <name>Arial Narrow Condensed</name>
+      <size>9</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <font place="MenuHeader">
+      <name>Arial Narrow Condensed</name>
+      <size>9</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <font place="MenuItem">
+      <name>Arial Narrow Condensed</name>
+      <size>9</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <font place="ActiveOnScreenDisplay">
+      <name>Arial Narrow Condensed</name>
+      <size>9</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+    <font place="InactiveOnScreenDisplay">
+      <name>Arial Narrow Condensed</name>
+      <size>9</size>
+      <weight>Normal</weight>
+      <slant>Normal</slant>
+    </font>
+  </theme>
+  <desktops>
+    <number>3</number>
+    <firstdesk>0</firstdesk>
+    <names>
+      <name>A</name>
+      <name>B</name>
+      <name>C</name>
+    </names>
+    <popupTime>0</popupTime>
+  </desktops>
+  <resize>
+    <drawContents>yes</drawContents>
+    <popupShow>NonPixel</popupShow>
+    <popupPosition>Center</popupPosition>
+    <popupFixedPosition>
+      <x>10</x>
+      <y>10</y>
+    </popupFixedPosition>
+  </resize>
+  <margins>
+    <top>60</top>
+    <bottom>35</bottom>
+    <left>35</left>
+    <right>35</right>
+  </margins>
+  <dock>
+    <position>Bottom</position>
+    <floatingX>0</floatingX>
+    <floatingY>0</floatingY>
+    <noStrut>no</noStrut>
+    <stacking>Above</stacking>
+    <direction>Vertical</direction>
+    <autoHide>no</autoHide>
+    <hideDelay>300</hideDelay>
+    <showDelay>300</showDelay>
+    <moveButton>Middle</moveButton>
+  </dock>
+  <!-- KEYBINDINGS -->
+  <keyboard>
+    <chainQuitKey>C-g</chainQuitKey>
+    <keybind key="W-1">
+      <action name="GoToDesktop">
+        <to>1</to>
+      </action>
+    </keybind>
+    <keybind key="W-2">
+      <action name="GoToDesktop">
+        <to>2</to>
+      </action>
+    </keybind>
+    <keybind key="W-Left">
+      <action name="GoToDesktop">
+        <to>left</to>
+        <wrap>no</wrap>
+      </action>
+    </keybind>
+    <keybind key="W-Right">
+      <action name="GoToDesktop">
+        <to>right</to>
+        <wrap>no</wrap>
+      </action>
+    </keybind>
+    <keybind key="W-S-Left">
+      <action name="SendToDesktop">
+        <to>left</to>
+        <wrap>no</wrap>
+      </action>
+    </keybind>
+    <keybind key="W-S-Right">
+      <action name="SendToDesktop">
+        <to>right</to>
+        <wrap>no</wrap>
+      </action>
+    </keybind>
+    <keybind key="W-S-K">
+      <action name="ToggleShowDesktop"/>
+    </keybind>
+    <!-- Keybindings for windows -->
+    <keybind key="A-F4">
+      <action name="Close"/>
+    </keybind>
+    <keybind key="A-d">
+      <action name="ToggleDecorations"/>
+    </keybind>
+    <keybind key="A-i">
+      <action name="Iconify"/>
+    </keybind>
+    <keybind key="A-m">
+      <action name="ToggleMaximize"/>
+    </keybind>
+    <keybind key="A-f">
+      <action name="Lower"/>
+      <action name="FocusToBottom"/>
+      <action name="Unfocus"/>
+    </keybind>
+    <keybind key="A-space">
+      <action name="ShowMenu">
+        <menu>client-menu</menu>
+      </action>
+    </keybind>
+    <!-- Keybindings for window switching -->
+    <keybind key="A-Tab">
+      <action name="NextWindow">
+        <finalactions>
+          <action name="Focus"/>
+          <action name="Raise"/>
+          <action name="Unshade"/>
+        </finalactions>
+      </action>
+    </keybind>
+    <keybind key="W-Up">
+      <action name="UnmaximizeFull"/>
+      <action name="MoveResizeTo">
+        <x>+395</x>
+        <y>+90</y>
+        <width>45/100</width>
+        <height>75/100</height>
+      </action>
+    </keybind>
+    <keybind key="W-S-Up">
+      <action name="UnmaximizeFull"/>
+      <action name="MoveResizeTo">
+        <x>+70</x>
+        <y>+45</y>
+        <width>90/100</width>
+        <height>85/100</height>
+      </action>
+    </keybind>
+    <keybind key="W-S-Down">
+      <action name="UnmaximizeFull"/>
+      <action name="MoveResizeTo">
+        <width>75/100</width>
+        <height>75/100</height>
+      </action>
+      <action name="MoveToCenter"/>
+    </keybind>
+    <keybind key="W-Down">
+      <action name="UnmaximizeFull"/>
+      <action name="MoveResizeTo">
+        <width>51/100</width>
+        <height>50/100</height>
+      </action>
+      <action name="MoveToCenter"/>
+    </keybind>
+    <!-- Keybindings for running applications -->
+    <keybind key="W-S-P">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>true</enabled>
+          <name>polybar</name>
+        </startupnotify>
+        <command>~/.config/polybar/launch.sh</command>
+      </action>
+    </keybind>
+    <keybind key="C-A-Delete">
+      <action name="Execute">
+        <command>xscreensaver-command -activate</command>
+      </action>
+    </keybind>
+    <keybind key="A-F1">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>true</enabled>
+          <name>switchsink</name>
+        </startupnotify>
+        <command>~/bin/switchsink</command>
+      </action>
+    </keybind>
+    <keybind key="W-space">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>false</enabled>
+          <name>rofi</name>
+        </startupnotify>
+        <command>~/.config/rofi/launcher.sh</command>
+      </action>
+    </keybind>
+    <keybind key="A-space">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>false</enabled>
+          <name>catfish</name>
+        </startupnotify>
+        <command>catfish</command>
+      </action>
+    </keybind>
+    <keybind key="C-space">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>false</enabled>
+          <name>alacritty</name>
+        </startupnotify>
+        <command>alacritty --working-directory /home/dustin</command>
+      </action>
+    </keybind>
+    <keybind key="W-f">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>false</enabled>
+          <name>File Manager</name>
+        </startupnotify>
+        <command>thunar</command>
+      </action>
+    </keybind>
+    <keybind key="W-p">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>true</enabled>
+          <name>Volume</name>
+        </startupnotify>
+        <command>pavucontrol</command>
+      </action>
+    </keybind>
+    <keybind key="W-o">
+      <action name="Execute">
+        <startupnotify>
+          <enabled>true</enabled>
+          <name>OBconf</name>
+        </startupnotify>
+        <command>obconf</command>
+      </action>
+    </keybind>
+    <keybind key="Print">
+      <action name="Execute">
+        <command>scrot -q 100 'Screenshot_%Y-%m-%d-%S_$wx$h.png' -e 'notify-send " Capture Screenshot! &#xE928; " ; mv $f /home/dustin/Inbox/screenshots ; feh /home/dustin/Inbox/screenshots/$f'</command>
+      </action>
+    </keybind>
+    <keybind key="A-Print">
+      <action name="Execute">
+        <command>scrot -u -q 100 'Screenshot_%Y-%m-%d-%S_$wx$h.png' -e 'notify-send " Capture Screenshot! &#xE928; " ; mv $f /home/dustin/Inbox/screenshots ; feh /home/dustin/Inbox/screenshots/$f'</command>
+      </action>
+    </keybind>
+    <keybind key="C-Print">
+      <action name="Execute">
+      <command>scrot -se 'xclip -selection clipboard -t image/png -i $f'</command>
+      </action>
+    </keybind>
+    <!-- Keybindings for menus -->
+    <keybind key="W-Tab">
+      <action name="ShowMenu">
+        <menu>client-list-combined-menu</menu>
+      </action>
+    </keybind>
+    <!-- A bit of tiling -->
+    <keybind key="A-r">
+      <action name="Resize"/>
+    </keybind>
+    <keybind key="A-e">
+      <action name="Move"/>
+    </keybind>
+  </keyboard>
+  <mouse>
+    <dragThreshold>1</dragThreshold>
+    <!-- number of pixels the mouse must move before a drag begins -->
+    <doubleClickTime>500</doubleClickTime>
+    <!-- in milliseconds (1000 = 1 second) -->
+    <screenEdgeWarpTime>400</screenEdgeWarpTime>
+    <!-- Time before changing desktops when the pointer touches the edge of the
+       screen while moving a window, in milliseconds (1000 = 1 second).
+       Set this to 0 to disable warping -->
+    <screenEdgeWarpMouse>false</screenEdgeWarpMouse>
+    <!-- Set this to TRUE to move the mouse pointer across the desktop when
+       switching due to hitting the edge of the screen -->
+    <context name="Frame">
+      <mousebind button="A-Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+      <mousebind button="A-Left" action="Click">
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="A-Left" action="Drag">
+        <action name="Move"/>
+      </mousebind>
+      <mousebind button="A-Right" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="A-Right" action="Drag">
+        <action name="Resize"/>
+      </mousebind>
+      <mousebind button="A-Middle" action="Press">
+        <action name="Lower"/>
+        <action name="FocusToBottom"/>
+        <action name="Unfocus"/>
+      </mousebind>
+      <mousebind button="A-Up" action="Click">
+        <action name="GoToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="A-Down" action="Click">
+        <action name="GoToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+      <mousebind button="C-A-Up" action="Click">
+        <action name="GoToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="C-A-Down" action="Click">
+        <action name="GoToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+      <mousebind button="A-S-Up" action="Click">
+        <action name="SendToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="A-S-Down" action="Click">
+        <action name="SendToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+    </context>
+    <context name="Titlebar">
+      <mousebind button="Left" action="Drag">
+        <action name="Move"/>
+      </mousebind>
+      <mousebind button="Left" action="DoubleClick">
+        <action name="ToggleMaximizeFull"/>
+      </mousebind>
+      <mousebind button="Up" action="Click">
+        <action name="if">
+          <shaded>no</shaded>
+          <then>
+            <action name="Shade"/>
+            <action name="FocusToBottom"/>
+            <action name="Unfocus"/>
+            <action name="Lower"/>
+          </then>
+        </action>
+      </mousebind>
+      <mousebind button="Down" action="Click">
+        <action name="if">
+          <shaded>yes</shaded>
+          <then>
+            <action name="Unshade"/>
+            <action name="Raise"/>
+          </then>
+        </action>
+      </mousebind>
+    </context>
+    <context name="Titlebar Top Right Bottom Left TLCorner TRCorner BRCorner BLCorner">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="Middle" action="Press">
+        <action name="Lower"/>
+        <action name="FocusToBottom"/>
+        <action name="Unfocus"/>
+      </mousebind>
+      <mousebind button="Right" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="ShowMenu">
+          <menu>client-menu</menu>
+        </action>
+      </mousebind>
+    </context>
+    <context name="Top">
+      <mousebind button="Left" action="Drag">
+        <action name="Resize">
+          <edge>top</edge>
+        </action>
+      </mousebind>
+    </context>
+    <context name="Left">
+      <mousebind button="Left" action="Drag">
+        <action name="Resize">
+          <edge>left</edge>
+        </action>
+      </mousebind>
+    </context>
+    <context name="Right">
+      <mousebind button="Left" action="Drag">
+        <action name="Resize">
+          <edge>right</edge>
+        </action>
+      </mousebind>
+    </context>
+    <context name="Bottom">
+      <mousebind button="Left" action="Drag">
+        <action name="Resize">
+          <edge>bottom</edge>
+        </action>
+      </mousebind>
+      <mousebind button="Right" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="ShowMenu">
+          <menu>client-menu</menu>
+        </action>
+      </mousebind>
+    </context>
+    <context name="TRCorner BRCorner TLCorner BLCorner">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="Left" action="Drag">
+        <action name="Resize"/>
+      </mousebind>
+    </context>
+    <context name="Client">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+      <mousebind button="Middle" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+      <mousebind button="Right" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+    </context>
+    <context name="Icon">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+        <action name="ShowMenu">
+          <menu>client-menu</menu>
+        </action>
+      </mousebind>
+      <mousebind button="Right" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="ShowMenu">
+          <menu>client-menu</menu>
+        </action>
+      </mousebind>
+    </context>
+    <context name="AllDesktops">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="Left" action="Click">
+        <action name="ToggleOmnipresent"/>
+      </mousebind>
+    </context>
+    <context name="Shade">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+      <mousebind button="Left" action="Click">
+        <action name="ToggleShade"/>
+      </mousebind>
+    </context>
+    <context name="Iconify">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+      <mousebind button="Left" action="Click">
+        <action name="Iconify"/>
+      </mousebind>
+    </context>
+    <context name="Maximize">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="Middle" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="Right" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="Left" action="Click">
+        <action name="ToggleMaximize"/>
+      </mousebind>
+      <mousebind button="Middle" action="Click">
+        <action name="ToggleMaximize">
+          <direction>vertical</direction>
+        </action>
+      </mousebind>
+      <mousebind button="Right" action="Click">
+        <action name="ToggleMaximize">
+          <direction>horizontal</direction>
+        </action>
+      </mousebind>
+    </context>
+    <context name="Close">
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+        <action name="Unshade"/>
+      </mousebind>
+      <mousebind button="Left" action="Click">
+        <action name="Close"/>
+      </mousebind>
+    </context>
+    <context name="Desktop">
+      <mousebind button="Up" action="Click">
+        <action name="GoToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="Down" action="Click">
+        <action name="GoToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+      <mousebind button="A-Up" action="Click">
+        <action name="GoToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="A-Down" action="Click">
+        <action name="GoToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+      <mousebind button="C-A-Up" action="Click">
+        <action name="GoToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="C-A-Down" action="Click">
+        <action name="GoToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+      <mousebind button="Left" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+      <mousebind button="Right" action="Press">
+        <action name="Focus"/>
+        <action name="Raise"/>
+      </mousebind>
+    </context>
+    <context name="Root">
+      <!-- Menus -->
+      <mousebind button="Middle" action="Press">
+        <action name="ShowMenu">
+          <menu>client-list-combined-menu</menu>
+        </action>
+      </mousebind>
+      <mousebind button="Right" action="Press">
+        <action name="ShowMenu">
+          <menu>root-menu</menu>
+        </action>
+      </mousebind>
+    </context>
+    <context name="MoveResize">
+      <mousebind button="Up" action="Click">
+        <action name="GoToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="Down" action="Click">
+        <action name="GoToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+      <mousebind button="A-Up" action="Click">
+        <action name="GoToDesktop">
+          <to>previous</to>
+        </action>
+      </mousebind>
+      <mousebind button="A-Down" action="Click">
+        <action name="GoToDesktop">
+          <to>next</to>
+        </action>
+      </mousebind>
+    </context>
+  </mouse>
+  <menu>
+    <file>menu.xml</file>
+    <hideDelay>400</hideDelay>
+    <middle>no</middle>
+    <submenuShowDelay>100</submenuShowDelay>
+    <submenuHideDelay>200</submenuHideDelay>
+    <applicationIcons>yes</applicationIcons>
+    <showIcons>yes</showIcons>
+    <manageDesktops>yes</manageDesktops>
+  </menu>
+  <applications>
+    <application name="oblogout">
+      <position force="no">
+        <monitor>1</monitor>
+      </position>
+      <fullscreen>yes</fullscreen>
+    </application>
+    <application name="obconf">
+      <position force="no">
+        <x>0%</x>
+        <y>0%</y>
+        <monitor>1</monitor>
+      </position>
+      <size>
+        <width>50%</width>
+        <height>50%</height>
+      </size>
+    </application>
+    <application name="brave">
+      <focus>yes</focus>
+    </application>
+  </applications>
+</openbox_config>
+
+#+END_SRC
+
+**** *config-desktop/openbox/autostart* 
+autostart is a simple shell script that runs after Openbox initializes.
+#+BEGIN_SRC shell :visibility folded :tangle build/openbox/autostart
+# Launch Polybar, our status bar
+DIR="$HOME/.config/polybar"
+
+# Set wallpaper
+# @todo: Fix this dependency, or at the very least activate it
+feh --no-fehbg --bg-scale $(shuf -n1 -e "$HOME/Resources/wallpaper/active/*")
+
+## Terminate already running bar instances
+killall -q polybar
+
+## Wait until the processes have been shut down
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
+# Launch the bar
+polybar -q main -c "$DIR"/config.ini &
+
+# Fix tearing issues
+nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 { ForceFullCompositionPipeline = On }"
+
+# Thunar Daemon
+exec thunar --daemon &
+
+# Notification Daemon
+exec dunst &
+
+# Turn on le screensaver
+xscreensaver -no-splash &
+
+# Start Compositing Manager
+
+## What's a Compositing Manager? Handles window rendering in
+## an efficient and beautiful (for linux) way
+picom --xrender-sync-fence --backend xrender --config="$HOME/.config/picom/picom.conf"
+#+END_SRC
+
+** File Manager
+** Launcher
+** Notifications
+*** Dunst
