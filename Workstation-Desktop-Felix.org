@@ -1,4 +1,5 @@
 #+TITLE: Workstation - Felix
+#+STARTUP: content
 #+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
 #+PROPERTY: header-args :tangle-mode (identity #o555)
 
@@ -8,37 +9,127 @@
 :CONTENTS:
 :END:
 
-* Home Configuration
-#+NAME: home-config
-#+BEGIN_SRC scheme
+* Dependencies
+#+NAME: dependencies
+#+BEGIN_SRC scheme  :tangle build/felix.scm
+(add-to-load-path (dirname (current-filename)))
 (use-modules (gnu home)
              (gnu home-services)
              (gnu home-services shells)
              (gnu services)
+             (gnu packages)
+             (guix build utils)
+             (guix monads)
              (gnu packages admin)
+             (my-home packages)
              (guix gexp))
+#+END_SRC
+* Dotfiles
 
-(felix-operating-system
-(inherit desktop-operating-system))
+Load the symbol ~dotfiles~ that contains a list of all dotfiles defined as part of build process. We use this list to automatically generate files in .config by defining ~home-files-services~, similar to GNU Stow. See function below.
 
+#+NAME: dependencies
+#+BEGIN_SRC scheme  :tangle build/felix.scm
+;; This file holds a list of all dotfiles, generated as part of
+;; my literate configuration build process
+(load "manifests/dotfiles.scm")
+
+;; Returns a list of home-file-service structs for each dotfile
+;; defined as part of "manifest" definitions you'll find
+;; sprinkled throughout all configurations
+(define (dl/generate-dotfiles-services list-of-dotfiles)
+  (if (null? list-of-dotfiles)
+    '()
+  (let ((config-file (string-append "config/" (car list-of-dotfiles)))
+        (build-file  (string-append "build/" (car list-of-dotfiles))))
+  (cons (simple-service 'load-build-files
+                         home-files-service-type
+                         (list
+                           `(,config-file
+                             ,(local-file build-file "config"))))
+                         (dl/generate-dotfiles-services (cdr list-of-dotfiles))))))
+#+END_SRC
+
+* Home Environment
+
+#+name: profiles
+#+begin_src scheme  :tangle build/felix.scm
 (home-environment
- (packages (list htop))
- (services
-  (list
+#+end_src
 
-   (service home-keyboard-service-type
-           (keyboard-layout (keyboard-layout "us"
-                                    ;;#:model "thinkpad"
-                                    #:options '("ctrl:nocaps"))))
-   (service home-bash-service-type
-            (home-bash-configuration
-             (guix-defaults? #t)
-             (bash-profile '("\
-                export HISTFILE=$XDG_CACHE_HOME/.bash_history"))))
+** Home Packages
 
-   (simple-service 'test-config
-                   home-files-service-type
-                   (list `("config/openbox/rc.xml"
-                           ,(plain-file "tmp-file.txt"
-                                        "the content of ~/.config/test.conf")))))))
+Like other configurations you may have seen, I leverage guix's manifest files to organize packages by context.
+#+NAME: profiles
+#+BEGIN_SRC scheme  :tangle build/felix.scm
+(packages (map specification->package+output
+              %my-packages))
+#+END_SRC
+
+** Home Services (i.e dotfiles)
+
+Guix Home defines "services" not as Shepherd services, like Guix does, but as plugins to perform a build action on your home environment.
+
+#+NAME: home-services
+#+BEGIN_SRC scheme  :tangle build/felix.scm
+(services
+  (append (list
+#+END_SRC
+
+*** Keyboard
+#+NAME: home-services-keyboard
+#+BEGIN_SRC scheme  :tangle build/felix.scm
+;;   (service home-keyboard-service-type
+;;           (keyboard-layout (keyboard-layout "us"
+;;                                    #:options '("ctrl:nocaps"))))
+#+END_SRC
+
+*** Shells
+**** Bash
+#+NAME: home-services
+#+BEGIN_SRC scheme  :tangle build/felix.scm
+(service home-bash-service-type
+        (home-bash-configuration
+          (guix-defaults? #f)
+          (bashrc '("# Export 'SHELL' to child processes.  
+# Programs such as 'screen' honor it and otherwise use /bin/sh.
+export SHELL
+
+# Export 'GUIX_PROFILE'. Sources all guix package environment variables,
+# for example,if we install python and Python libraries, PYTHONPATH
+# will be defined.
+export GUIX_PROFILE=\"$HOME/.guix-profile\"
+    
+# Few other useful exports
+export LANG=en_US.UTF-8
+export LIBGL_ALWAYS_INDIRECT=1 # Silenced a few warnings, otherwise not sure
+    
+# We are being invoked from a non-interactive shell.  If this
+# is an SSH session (as in \"ssh host command\"), source
+# /etc/profile so we get PATH and other essential variables.
+if [[ $- != *i* ]]
+then
+[[ -n \"$SSH_CLIENT\" ]] && source \"$GUIX_PROFILE/etc/profile\"
+    
+# Don't do anything else.
+return
+fi
+    
+# Source system-wide configuration
+# i.e run everything in these files
+source /etc/bashrc
+source \"$GUIX_PROFILE/etc/profile\"
+    
+# oh-my-BASH!
+# https://ohmybash.nntoan.com/
+export OSH=$HOME/Resources/code/oh-my-bash
+export OSH_THEME=\"agnoster\"
+export HYPEN_INSENSITIVE=\"true\"
+export COMPLETION_WAITING_DOTS=\"true\"
+source $OSH/oh-my-bash.sh
+# ~~*~-~*~-~*~~*~-~*~-~*~~*~-~*~-~*~~*~-~*~-~*~**~~*~-~*~-~*~")))))
+
+;; Generates home-files-services for each dotfile defined
+;; throughout configuration inheritance
+(dl/generate-dotfiles-services dotfiles))))
 #+END_SRC

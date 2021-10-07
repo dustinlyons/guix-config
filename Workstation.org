@@ -2,6 +2,7 @@
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
 #+PROPERTY: header-args:conf :tangle-mode (identity #o555)
+#+STARTUP: content
 
 * Table of Contents
 :PROPERTIES:
@@ -19,7 +20,7 @@ My entire operating system configuration (guix) with all of my dotfiles defined 
 
 Reproducible, determinstic builds and our ability to simply declare the state of things has matured so much I had to give this experiment a try. With everything defined in this way, without pulling my hair out I can treat my system as one program, instead of a scattering of dependencies that don't know about each other.
 
-Moreover, every change to my system is now deployed from the [[guix store][guix store]] thanks to [[guix home][guix home]]. This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness.
+Moreover, every change to my system is now deployed from the [[guix store][guix store]] thanks to [[guix home][guix home]]. This means I get rollbacks, transactional upgrades, fine-grained profiles, and other guix goodness for free.
 
 Other advantages: theming now becomes easier. It's all here, and I can define one set of colors to be used literally everywhere.
 
@@ -40,7 +41,7 @@ If you want a crash course into these tools, check out his [[https://www.youtube
 Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_node/Channels.html#Channels][channels]]. As Guix strongly respects the [[https://www.gnu.org/distros/free-system-distribution-guidelines.html][freedom of computer users]], in order to download non-free software one must include non-free channels. I include one of these below (~nongnu)~, in addition to the default Guix channel definition.
 
 #+NAME: channels
-#+BEGIN_SRC scheme :tangle build/guix/channels.scm
+#+BEGIN_SRC scheme :tangle build/channels.scm
 (list (channel
         (name 'guix)
         (url "https://git.savannah.gnu.org/git/guix.git")
@@ -64,10 +65,11 @@ Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_n
   I build up my system configurations using [[https://orgmode.org/manual/Extracting-Source-Code.html][noweb]] style syntax. This enables us to write a base operating system available to be inherited by concrete system definitions (laptops, desktops, servers).
 
 ** Dependencies
+
 Define all dependencies we need to to build the base definition.
    
 #+NAME: base-definition 
-#+BEGIN_SRC scheme :tangle build/guix/workstation.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
 (define-module (workstation)
   #:use-module (gnu)
   #:use-module (gnu packages)
@@ -89,16 +91,14 @@ Define all dependencies we need to to build the base definition.
 
 ** Keyboard and Mouse
 
-2. Prepare some rules, config to be used in base operating system definition.
-
-This is common across all machines, so I keep this here. All changes get propogated everywhere.
+Prepare some rules, config to be used in base operating system definition. This is common across all machines, so I keep this here. All changes get propogated everywhere.
 
 *** libinput
 
  Use =libinput= driver for all input devices as it provides more optionality.
 
 #+NAME: base-definition-config
-#+BEGIN_SRC scheme :tangle build/guix/workstation.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
 ;; @todo: Move this to where it is used in slim-service-type
 (define %xorg-libinput-config
   "Section \"InputClass\"
@@ -122,10 +122,13 @@ This is common across all machines, so I keep this here. All changes get propoga
   EndSection")
 #+end_src
 
+
 ** Base Definition
+
 Now that we've prepped module definitions and labeled values to be used in our base operating system, let's define it. All systems inherit from this defintion, both servers and workstations.
+
 #+NAME: base-definition
-#+BEGIN_SRC scheme :tangle build/guix/workstation.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
 ;; Base Operating System
 (define-public base-operating-system
   (operating-system
@@ -137,19 +140,23 @@ Now that we've prepped module definitions and labeled values to be used in our b
 #+END_SRC
 
 ** Kernel
+
 Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compiled against it. In the future I'd like to move away from lts to get more frequent patches.
+
 #+NAME: kernel 
-#+BEGIN_SRC scheme :tangle build/guix/workstation.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
   (kernel linux-lts)
   (firmware (list linux-firmware))
 
 #+END_SRC
 
 ** File Systems
-*** Boot loader
+*** Boot Loader
+
 Define GRUB as the bootloader for all machines and insert an empty filesystem to be overridden by derivative machines.
+
 #+NAME: file-systems-boot-loader 
-#+BEGIN_SRC scheme :tangle build/guix/workstation.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
   ;; Boot settings (UEFI)
   (bootloader
     (bootloader-configuration
@@ -159,10 +166,12 @@ Define GRUB as the bootloader for all machines and insert an empty filesystem to
 
 #+END_SRC
 
-*** Stub
+*** Template Stub
+
 Stub out an empty filesystem to be overriden later. Guix complains otherwise.
+
 #+NAME: file-systems-stub
-#+BEGIN_SRC scheme :tangle build/guix/workstation.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
   (file-systems (cons*
                  (file-system
                    (mount-point "/tmp")
@@ -172,15 +181,34 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
                  %base-file-systems))))
 #+END_SRC
 
-* X Window System Components
+
+** X Window System Components
+
 These components and their respective dotfiles are shared across all workstations.
 
-** Status Bar
-*** Polybar
+*** Status Bar
+**** Polybar
 
-I use polybar to provide a minimal amount of data in a status bar. Date, time, and a watch over CPU, RAM, and Network. @todo: move this into Workstation
+I use polybar to provide a minimal amount of data in a status bar. Date, time, and a watch over CPU, RAM, and Network.
 
-**** *config-workstation/polybar/colors.ini*
+***** packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+  "polybar"
+#+END_SRC
+
+***** dotfiles
+****** manifest
+
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  "polybar/colors.ini"
+  "polybar/bars.ini"
+  "polybar/modules.ini"
+  "polybar/config.ini"
+#+END_SRC
+
+****** polybar/colors.ini
+
 Color definitions for various modules. @todo: pull this from my global color definition.
 #+NAME: polybar-colors
 #+BEGIN_SRC conf :visiblity folded :tangle build/polybar/colors.ini
@@ -212,7 +240,7 @@ blue-gray = #5FB3B3
 
 #+END_SRC
 
-**** *config-workstation/polybar/bars.ini*
+****** polybar/bars.ini
 Define bars and visual elements.
 #+NAME: polybar-bars
 #+BEGIN_SRC conf :visiblity folded :tangle build/polybar/bars.ini
@@ -387,7 +415,7 @@ bar-used-empty-foreground = ${color.gray}
 
 #+END_SRC
 
-**** *config-workstation/polybar/modules.ini*
+****** polybar/modules.ini
 Define modules and their functionality.
 #+NAME: polybar-modules
 #+BEGIN_SRC conf :visiblity folded :tangle build/polybar/modules.ini
@@ -732,7 +760,7 @@ content-foreground = ${color.background}
 
 #+END_SRC
 
-**** *config-workstation/polybar/config.ini*
+****** polybar/config.ini
 Main script for polybar.
 
 #+NAME: polybar-confiid
@@ -805,3 +833,18 @@ compositing-border = over
 
 #+END_SRC
 
+
+* Export Manifest
+
+#+begin_src scheme :tangle build/manifests/packages.scm :noweb yes 
+(specifications->manifest
+ '(
+  <<packages-manifest>>
+))
+#+end_src
+
+#+begin_src scheme :tangle build/manifests/dotfiles.scm :noweb yes 
+(define dotfiles (list
+  <<dotfiles-manifest>>
+))
+#+end_src
