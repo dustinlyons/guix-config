@@ -18,7 +18,7 @@ config-laptop: config-workstation
 	@echo "Building Workstation - Laptop..."
 	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Laptop.org")'
 
-install: config-desktop
+install:
 	@echo "Installing new guix generation..."
 	sudo -E guix system -L ./build/guix reconfigure ./build/guix/desktop.scm
 

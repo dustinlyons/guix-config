@@ -5,7 +5,8 @@
 * Table of Contents
 :PROPERTIES:
 :TOC: :include all :ignore this
-:END
+:CONTENTS:
+:END:
 
 * Home Configuration
 #+NAME: home-config
