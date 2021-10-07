@@ -1,4 +1,5 @@
 #+TITLE: Workstation - Desktop
+#+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
 #+PROPERTY: header-args:conf :tangle-mode (identity #o555)
@@ -44,10 +45,10 @@ Note we inherit this definition from the base [[#Workstation][Workstation]] defi
 ** Dependencies
 Define all dependencies we need to to build the base definition.
 #+NAME: base-definition
-#+BEGIN_SRC scheme  :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme  :tangle build/desktop.scm
 (define-module (desktop)
   #:use-module (workstation)
-  #:use-module (srfi srfi-1) ;; We use srf1 for the remove function
+  #:use-module (srfi srfi-1) ;; for the remove function
   #:use-module (guix transformations)
   #:use-module (guix channels)
   #:use-module (gnu packages bash)
@@ -59,6 +60,7 @@ Define all dependencies we need to to build the base definition.
   #:use-module (gnu services linux)
   #:use-module (gnu services desktop)
   #:use-module (nongnu packages nvidia)
+  #:use-module (dl utils) ;; for the dotfiles functions
   #:use-module (gnu))
 
 (define transform
@@ -68,7 +70,7 @@ Define all dependencies we need to to build the base definition.
 
 ** Base Definition
 #+NAME: base-definition
-#+BEGIN_SRC scheme  :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme  :tangle build/desktop.scm
 (operating-system
  (inherit base-operating-system)
  (host-name "desktop")
@@ -77,7 +79,7 @@ Define all dependencies we need to to build the base definition.
 ** Kernel 
 Kernel modules and associated configuration. We remove the community nvidia-driver (nouveau) and use the offficial (non-free) one instead.
 #+NAME: kernel
-#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme :tangle build/desktop.scm
   (kernel-arguments
     (append
       '("modprobe.blacklist=nouveau") ;; Use nvidia-driver instead 
@@ -88,7 +90,7 @@ Kernel modules and associated configuration. We remove the community nvidia-driv
 
 ** Network
 #+NAME: network 
-#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme :tangle build/desktop.scm
   ;; Allow resolution of '.local' host names with mDNS
   (name-service-switch %mdns-host-lookup-nss)
 #+END_SRC
@@ -102,7 +104,7 @@ We use btrfs on all Workstations. btrfs is great for the following reasons:
 - Snapshots: btrfs' writeable snapshots allow us to rollback state 
 
 #+NAME: file-systems-btrfs 
-#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme :tangle build/desktop.scm
   ;; File partitions, filesystems
   (file-systems
     (cons* (file-system ;; One big fat btrfs partition for our stuff
@@ -115,7 +117,7 @@ We use btrfs on all Workstations. btrfs is great for the following reasons:
 *** UEFI
 Guix needs to reference the filesystem on disk, we use an UUID to identify it.
 #+NAME: file-systems-uefi
-#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme :tangle build/desktop.scm
            (file-system ;; UEFI boot partition
              (mount-point "/boot/efi")
              (device (uuid "1F00-ED40" 'fat32))
@@ -126,7 +128,7 @@ Guix needs to reference the filesystem on disk, we use an UUID to identify it.
 ** Users
 Setup the one user, me, and establish a core set of groups.
 #+NAME: users
-#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme :tangle build/desktop.scm
   ;; @todo: Move to guix-home, move packages to profile manifests
   ;; Users, home directories, groups, etc.
   (users (cons* (user-account
@@ -143,17 +145,18 @@ Setup the one user, me, and establish a core set of groups.
 We save most of the package loading for our independent machine definitions. However, here is a base set of packages for my Desktop that shouldn't change that often.
 
 #+NAME: packages 
-#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme :tangle build/desktop.scm
   ;; Install a base set of Desktop packages
+  ;; @todo: Decide what to do with these packages
   (packages (append (map specification->package 
-		'("openbox" "htop" "git" "gnupg" "nss-certs" "vim" "emacs" "polybar" "rofi" "firefox" "xf86-input-libinput" "gvfs")) %base-packages))
+		'("openbox" "htop" "git" "gnupg" "nss-certs" "vim" "emacs" "firefox" "xf86-input-libinput" "gvfs")) %base-packages))
 
 #+END_SRC
 
 *** Services
 **** Shepherd
 #+NAME: services-shepherd 
-#+BEGIN_SRC scheme :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme :tangle build/desktop.scm
   (services (cons* (service special-files-service-type
 	    `(("/bin/sh" ,(file-append bash "/bin/bash"))
 	      ("/bin/bash" ,(file-append bash "/bin/bash"))
@@ -178,7 +181,8 @@ We save most of the package loading for our independent machine definitions. How
             (display ":0")
             (vt "vt8")
             (xorg-configuration (xorg-configuration
-                                  (keyboard-layout (keyboard-layout "us"))
+                                  (keyboard-layout (keyboard-layout "us"
+                                    #:options '("ctrl:nocaps")))
                                   (modules
 				    (cons* nvidia-driver %default-xorg-modules))
                                   (server (transform xorg-server))
@@ -187,28 +191,76 @@ We save most of the package loading for our independent machine definitions. How
           (remove (lambda (service)
             (eq? (service-kind service) gdm-service-type))
 		  %desktop-services))))
-
 #+END_SRC
-
-*** Display
-**** Brightness 
-**** Compositor
 
 * X Window System Components
 
-** Theming
-*** Colors
-*** GTK
-*** Fonts
-
 ** Window Manager
+
 *** Openbox
 
 I use Openbox primarily on my Desktop, as I find window managers to be too restrictive to free thought. I'm all for winning at vim golf but the mouse does have a place for a little bit of meandering. I meander on my Desktop.
 
-**** *config-desktop/openbox/rc.xml*
+Openbox is great on a big monitor, so it's primarily used on my Desktop. The dotfiles configure boot scripts and visual styles.
+
+***** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "openbox"
+#+END_SRC
+
+***** dotfiles
+****** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+
+  "openbox/autostart"
+  "openbox/rc.xml"
+
+#+END_SRC
+****** openbox/autostart 
+autostart is a simple shell script that runs after Openbox initializes.
+#+BEGIN_SRC shell :visibility :tangle build/openbox/autostart
+# This file generated from guix-config/Workstation-Desktop.org Makefile
+
+# Launch Polybar, our status bar
+DIR="$HOME/.config/polybar"
+
+# Set wallpaper
+# @todo: Fix this dependency, or at the very least activate it
+feh --no-fehbg --bg-scale $(shuf -n1 -e "$HOME/Resources/wallpaper/active/*")
+
+## Terminate already running bar instances
+killall -q polybar
+
+## Wait until the processes have been shut down
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
+# Launch the bar
+polybar -q main -c "$DIR"/config.ini &
+
+# Fix tearing issues
+nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 { ForceFullCompositionPipeline = On }"
+
+# Thunar Daemon
+exec thunar --daemon &
+
+# Notification Daemon
+exec dunst &
+
+# Turn on le screensaver
+xscreensaver -no-splash &
+
+# Start Compositing Manager
+
+## What's a Compositing Manager? Handles window rendering in
+## an efficient and beautiful (for linux) way
+picom --xrender-sync-fence --backend xrender --config="$HOME/.config/picom/picom.conf"
+#+END_SRC
+
+****** openbox/rc.xml
 rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement, and display settings.
 #+BEGIN_SRC xml :visiblity folded :tangle build/openbox/rc.xml
+<!-- This file generated from guix-config/Workstation-Desktop.org Makefile -->
 <?xml version="1.0"?>
 <openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">
   <resistance>
@@ -892,45 +944,156 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
 
 #+END_SRC
 
-**** *config-desktop/openbox/autostart* 
-autostart is a simple shell script that runs after Openbox initializes.
-#+BEGIN_SRC shell :visibility folded :tangle build/openbox/autostart
-# Launch Polybar, our status bar
-DIR="$HOME/.config/polybar"
+** Launcher
 
-# Set wallpaper
-# @todo: Fix this dependency, or at the very least activate it
-feh --no-fehbg --bg-scale $(shuf -n1 -e "$HOME/Resources/wallpaper/active/*")
+*** Rofi
 
-## Terminate already running bar instances
-killall -q polybar
+Rofi is a quick launcher and how I primarily interface with applications in Openbox.
 
-## Wait until the processes have been shut down
-while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+***** guix packages
 
-# Launch the bar
-polybar -q main -c "$DIR"/config.ini &
-
-# Fix tearing issues
-nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 { ForceFullCompositionPipeline = On }"
-
-# Thunar Daemon
-exec thunar --daemon &
-
-# Notification Daemon
-exec dunst &
-
-# Turn on le screensaver
-xscreensaver -no-splash &
-
-# Start Compositing Manager
-
-## What's a Compositing Manager? Handles window rendering in
-## an efficient and beautiful (for linux) way
-picom --xrender-sync-fence --backend xrender --config="$HOME/.config/picom/picom.conf"
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "rofi"
 #+END_SRC
 
-** File Manager
-** Launcher
-** Notifications
-*** Dunst
+***** dotfiles
+****** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+
+  "rofi/launcher.sh"
+  "rofi/theme.rasi"
+
+#+END_SRC
+
+****** rofi/launcher.sh
+
+Launches the display defined in theme.rasi.
+
+#+BEGIN_SRC shell :visibility :tangle build/rofi/launcher.sh
+#!/usr/bin/env bash
+rofi -no-lazy-grab -show drun -theme theme.rasi
+
+#+END_SRC
+
+****** rofi/theme.rasi
+#+BEGIN_SRC conf :visibility :tangle build/rofi/theme.rasi
+configuration {
+    drun-display-format: "{icon} {name}";
+    display-drun: "run";
+	show-icons: true;
+	icon-theme: "Moka";
+	location: 0;
+	yoffset: 0;
+    xoffset: 0;
+	columns: 1;
+	fake-transparency: false;
+	hide-scrollbar: true;
+	bw: 0;
+    fullscreen: false;
+    show-icons: true;
+	terminal: "alacritty";
+	sidebar-mode: false;
+}
+
+,* {
+    background:                     #1f2528;
+    background-alt:                 #414c51ff;
+    foreground:                     #A2A4A6cc;
+    border:                         #394F55ff;
+    border-alt:                     #88c0d0ff;
+    selected:                       #394F55;
+    urgent:                         #b48eadFF;
+}
+
+,* {
+  text-font:                            "Arial";
+
+  inputbar-margin:                      3px 3px;
+  prompt-padding:                       5px 5px;
+  entry-padding:                        10px 0px 10px 0px;
+  list-element-padding:                 5px;
+  list-element-margin:                  @inputbar-margin;
+  list-element-border:                  0px 0px 0px 4px;
+
+  apps-textbox-prompt-colon-padding:    10px -5px 0px 0px;
+}
+
+,* {
+  background-color: #1F2528;
+  border-color: #2e343f;
+  text-color: #C0C5CE;
+  spacing: 0;
+  width: 512px;
+}
+
+inputbar {
+  border: 0 0 1px 0;
+  children: [prompt,entry];
+}
+
+prompt {
+  padding: 16px;
+  border: 0 1px 0 0;
+}
+
+textbox {
+  background-color: #2e343f;
+  border: 0 0 1px 0;
+  border-color: #282C33;
+  padding: 8px 16px;
+}
+
+entry {
+  padding: 12px;
+}
+
+listview {
+  cycle: false;
+  margin: 0 0 -1px 0;
+  scrollbar: false;
+}
+
+element {
+  border: 0 0 1px 0;
+  padding: 12px;
+}
+
+element selected {
+  border: 1px 1px 1px 1px;
+  border-color: #FAC863;
+}
+#+END_SRC
+
+* Export 
+
+#+begin_src scheme :tangle build/dl/desktop.scm :noweb yes
+(define-module (dl desktop)
+  #:export (%dl-packages-desktop)
+  #:export (%dl-dotfiles-desktop))
+
+(define %dl-packages-desktop
+  (list
+  <<packages-manifest>>
+))
+
+(define %dl-dotfiles-desktop
+  (list
+  <<dotfiles-manifest>>
+))
+#+end_src
+
+#+begin_src scheme :tangle build/dl/utils.scm :noweb yes
+(define-module (dl utils)
+  #:export (%dl-packages)
+  #:export (%dl-dotfiles))
+
+  (use-modules (dl workstation)
+               (dl desktop))
+
+  (define %dl-packages
+    (append %dl-packages-workstation %dl-packages-desktop))
+
+  (define %dl-dotfiles
+    (append %dl-dotfiles-workstation %dl-dotfiles-desktop))
+               
+#+end_src

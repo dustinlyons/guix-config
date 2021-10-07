@@ -1,27 +1,46 @@
-# Makefile 
-# Tangles all configs and builds a new guix generation
+# Makefile, tangles all configs and builds a new guix generation
+# Dustin Lyons
+
 SHELL = /bin/sh
 
-config-felix: config-desktop
+--config-felix: --config-desktop
 	@echo "Building Workstation - Desktop - Felix..."
 	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop-Felix.org")'
 
-config-workstation:
-	@echo "Building Workstation..."
-	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation.org")'
-
-config-desktop: config-workstation
+--config-desktop: --config-workstation
 	@echo "Building Workstation - Desktop..."
 	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop.org")'
 
-config-laptop: config-workstation
-	@echo "Building Workstation - Laptop..."
-	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Laptop.org")'
+--config-workstation:
+	@echo "Building Workstation..."
+	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation.org")'
 
-install:
-	@echo "Installing new guix generation..."
-	sudo -E guix system -L ./build/guix reconfigure ./build/guix/desktop.scm
+--install-felix:
+	@echo "Installing new guix system generation..."
+	sudo -E guix system --load-path=./build reconfigure ./build/desktop.scm
+
+--install-felix-dry-run:
+	@echo "Installing new guix system generation..."
+	sudo -E guix system --cores=12 --dry-run --load-path=./build reconfigure ./build/desktop.scm
+
+--install-felix-home:
+	@echo "Installing new guix home generation..."
+	guix home reconfigure ./build/felix.scm
+
+--install-felix-home-dry-run:
+	@echo "Installing new guix home generation..."
+	guix home reconfigure --dry-run ./build/felix.scm
+
+--install-felix-slow:
+	@echo "Installing new guix system generation..."
+	sudo -E guix system --load-path=./build --cores=12 reconfigure ./build/desktop.scm
 
 clean: 
 	@echo "Removing build artifacts..."
 	@rm -rf build
+
+install-home: --install-felix-home
+install-system: --install-felix
+install: install-system install-home
+	@echo "Starting install..."
+
