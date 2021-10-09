@@ -2,24 +2,20 @@
 
 ## Screenshot
 
-![Screenshot showing desktop](res/Desktop.png) 
+![Desktop in October, 2021](res/Desktop.png) 
 
 ## Overview
 ### What is this?
 
-tl;dr
+_tl;dr The "functional programming" equivalent to operating systems_
 
-The "functional programming" equivalent to operating systems
+The configuration of my operating system (GuixSD) and day-to-day software (who are we kidding, emacs) defined in literate configuration style. The .org files represent the code itself. Makefile is used to [tangle](https://orgmode.org/worg/org-contrib/babel/intro.html) the code into seperate files of which are primarily Scheme. Finally, the Guix daemon interprets the files to generate everything from my desktop and laptop, to servers running in a rack or VMs inside of a hypervisor. _(coming soon)_
 
-The configuration of my operating system (GuixSD) and day-to-day software (who are we kidding, emacs) defined in literate configuration style. The .org files represent the code itself. Makefile is used to [tangle](https://orgmode.org/worg/org-contrib/babel/intro.html) the code into seperate files. These files are then interpreted by the guix daemon to generate packages, dotfile configuration, system-level changes. The result is my entire OS written in declarative Scheme.
-
-Currently this repo powers my Desktop machine, but I am working on expanding it to a few laptops, machines I have running in my home-lab and virtual machines within a hypervisor.
-
-I'm actively working on this as of October, 2021.
+No more traditional dotfiles. Hello Scheme and literate config.
 
 ### Why?
 
-With everything defined in this way I can treat my system as one program without pulling my hair out. 
+With everything defined in this way I can treat my system as one program without pulling my hair out. It's 100% reproducible.
 
 Every change to my system is now deployed from the [guix store](https://guix.gnu.org/manual/en/html_node/The-Store.html) thanks to [guix home](https://guix.gnu.org/manual/devel/en/html_node/Home-Configuration.html). This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness with even my dotfiles.
 
