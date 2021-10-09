@@ -122,7 +122,6 @@ Prepare some rules, config to be used in base operating system definition. This 
   EndSection")
 #+end_src
 
-
 ** Base Definition
 
 Now that we've prepped module definitions and labeled values to be used in our base operating system, let's define it. All systems inherit from this defintion, both servers and workstations.
@@ -181,7 +180,6 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
                  %base-file-systems))))
 #+END_SRC
 
-
 ** X Window System Components
 
 These components and their respective dotfiles are shared across all workstations.
@@ -191,7 +189,7 @@ These components and their respective dotfiles are shared across all workstation
 
 I use polybar to provide a minimal amount of data in a status bar. Date, time, and a watch over CPU, RAM, and Network.
 
-***** packages
+***** guix packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
   "polybar"
@@ -833,18 +831,24 @@ compositing-border = over
 
 #+END_SRC
 
+* Export Packages and Dotfiles
 
-* Export Manifest
+#+begin_src scheme :tangle build/dl/packages.scm :noweb yes
+(define-module (dl packages)
+  #:export (%dl-packages))
 
-#+begin_src scheme :tangle build/manifests/packages.scm :noweb yes 
-(specifications->manifest
- '(
+(define %dl-packages
+  (list
   <<packages-manifest>>
 ))
 #+end_src
 
-#+begin_src scheme :tangle build/manifests/dotfiles.scm :noweb yes 
-(define dotfiles (list
+#+begin_src scheme :tangle build/dl/dotfiles.scm :noweb yes
+(define-module (dl dotfiles)
+  #:export (%dl-dotfiles))
+
+(define %dl-dotfiles
+  (list
   <<dotfiles-manifest>>
 ))
 #+end_src

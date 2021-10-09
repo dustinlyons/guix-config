@@ -69,7 +69,7 @@ Define all dependencies we need to to build the base definition.
 
 ** Base Definition
 #+NAME: base-definition
-#+BEGIN_SRC scheme  :tangle build/guix/desktop.scm
+#+BEGIN_SRC scheme  :tangle build/desktop.scm
 (operating-system
  (inherit base-operating-system)
  (host-name "desktop")
