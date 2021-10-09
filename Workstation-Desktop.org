@@ -48,7 +48,7 @@ Define all dependencies we need to to build the base definition.
 #+BEGIN_SRC scheme  :tangle build/desktop.scm
 (define-module (desktop)
   #:use-module (workstation)
-  #:use-module (srfi srfi-1) ;; We use srf1 for the remove function
+  #:use-module (srfi srfi-1) ;; for the remove function
   #:use-module (guix transformations)
   #:use-module (guix channels)
   #:use-module (gnu packages bash)
@@ -60,6 +60,7 @@ Define all dependencies we need to to build the base definition.
   #:use-module (gnu services linux)
   #:use-module (gnu services desktop)
   #:use-module (nongnu packages nvidia)
+  #:use-module (dl utils) ;; for the dotfiles functions
   #:use-module (gnu))
 
 (define transform
@@ -146,8 +147,9 @@ We save most of the package loading for our independent machine definitions. How
 #+NAME: packages 
 #+BEGIN_SRC scheme :tangle build/desktop.scm
   ;; Install a base set of Desktop packages
+  ;; @todo: Decide what to do with these packages
   (packages (append (map specification->package 
-		'("openbox" "htop" "git" "gnupg" "nss-certs" "vim" "emacs" "polybar" "rofi" "firefox" "xf86-input-libinput" "gvfs")) %base-packages))
+		'("openbox" "htop" "git" "gnupg" "nss-certs" "vim" "emacs" "firefox" "xf86-input-libinput" "gvfs")) %base-packages))
 
 #+END_SRC
 
@@ -191,33 +193,33 @@ We save most of the package loading for our independent machine definitions. How
 		  %desktop-services))))
 #+END_SRC
 
-*** Display
-**** Brightness 
-**** Compositor
-
 * X Window System Components
 
-** Theming
-*** Colors
-*** GTK
-*** Fonts
-
 ** Window Manager
+
 *** Openbox
 
 I use Openbox primarily on my Desktop, as I find window managers to be too restrictive to free thought. I'm all for winning at vim golf but the mouse does have a place for a little bit of meandering. I meander on my Desktop.
 
-**** build files
-***** *manifest*
+Openbox is great on a big monitor, so it's primarily used on my Desktop. The dotfiles configure boot scripts and visual styles.
+
+***** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "openbox"
+#+END_SRC
+
+***** dotfiles
+****** manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
 
   "openbox/autostart"
   "openbox/rc.xml"
 
 #+END_SRC
-***** *openbox/autostart* 
+****** openbox/autostart 
 autostart is a simple shell script that runs after Openbox initializes.
-#+BEGIN_SRC shell :visibility folded :tangle build/openbox/autostart
+#+BEGIN_SRC shell :visibility :tangle build/openbox/autostart
 # This file generated from guix-config/Workstation-Desktop.org Makefile
 
 # Launch Polybar, our status bar
@@ -255,7 +257,7 @@ xscreensaver -no-splash &
 picom --xrender-sync-fence --backend xrender --config="$HOME/.config/picom/picom.conf"
 #+END_SRC
 
-***** *openbox/rc.xml*
+****** openbox/rc.xml
 rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement, and display settings.
 #+BEGIN_SRC xml :visiblity folded :tangle build/openbox/rc.xml
 <!-- This file generated from guix-config/Workstation-Desktop.org Makefile -->
@@ -942,7 +944,156 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
 
 #+END_SRC
 
-** File Manager
 ** Launcher
-** Notifications
-*** Dunst
+
+*** Rofi
+
+Rofi is a quick launcher and how I primarily interface with applications in Openbox.
+
+***** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "rofi"
+#+END_SRC
+
+***** dotfiles
+****** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+
+  "rofi/launcher.sh"
+  "rofi/theme.rasi"
+
+#+END_SRC
+
+****** rofi/launcher.sh
+
+Launches the display defined in theme.rasi.
+
+#+BEGIN_SRC shell :visibility :tangle build/rofi/launcher.sh
+#!/usr/bin/env bash
+rofi -no-lazy-grab -show drun -theme theme.rasi
+
+#+END_SRC
+
+****** rofi/theme.rasi
+#+BEGIN_SRC conf :visibility :tangle build/rofi/theme.rasi
+configuration {
+    drun-display-format: "{icon} {name}";
+    display-drun: "run";
+	show-icons: true;
+	icon-theme: "Moka";
+	location: 0;
+	yoffset: 0;
+    xoffset: 0;
+	columns: 1;
+	fake-transparency: false;
+	hide-scrollbar: true;
+	bw: 0;
+    fullscreen: false;
+    show-icons: true;
+	terminal: "alacritty";
+	sidebar-mode: false;
+}
+
+,* {
+    background:                     #1f2528;
+    background-alt:                 #414c51ff;
+    foreground:                     #A2A4A6cc;
+    border:                         #394F55ff;
+    border-alt:                     #88c0d0ff;
+    selected:                       #394F55;
+    urgent:                         #b48eadFF;
+}
+
+,* {
+  text-font:                            "Arial";
+
+  inputbar-margin:                      3px 3px;
+  prompt-padding:                       5px 5px;
+  entry-padding:                        10px 0px 10px 0px;
+  list-element-padding:                 5px;
+  list-element-margin:                  @inputbar-margin;
+  list-element-border:                  0px 0px 0px 4px;
+
+  apps-textbox-prompt-colon-padding:    10px -5px 0px 0px;
+}
+
+,* {
+  background-color: #1F2528;
+  border-color: #2e343f;
+  text-color: #C0C5CE;
+  spacing: 0;
+  width: 512px;
+}
+
+inputbar {
+  border: 0 0 1px 0;
+  children: [prompt,entry];
+}
+
+prompt {
+  padding: 16px;
+  border: 0 1px 0 0;
+}
+
+textbox {
+  background-color: #2e343f;
+  border: 0 0 1px 0;
+  border-color: #282C33;
+  padding: 8px 16px;
+}
+
+entry {
+  padding: 12px;
+}
+
+listview {
+  cycle: false;
+  margin: 0 0 -1px 0;
+  scrollbar: false;
+}
+
+element {
+  border: 0 0 1px 0;
+  padding: 12px;
+}
+
+element selected {
+  border: 1px 1px 1px 1px;
+  border-color: #FAC863;
+}
+#+END_SRC
+
+* Export 
+
+#+begin_src scheme :tangle build/dl/desktop.scm :noweb yes
+(define-module (dl desktop)
+  #:export (%dl-packages-desktop)
+  #:export (%dl-dotfiles-desktop))
+
+(define %dl-packages-desktop
+  (list
+  <<packages-manifest>>
+))
+
+(define %dl-dotfiles-desktop
+  (list
+  <<dotfiles-manifest>>
+))
+#+end_src
+
+#+begin_src scheme :tangle build/dl/utils.scm :noweb yes
+(define-module (dl utils)
+  #:export (%dl-packages)
+  #:export (%dl-dotfiles))
+
+  (use-modules (dl workstation)
+               (dl desktop))
+
+  (define %dl-packages
+    (append %dl-packages-workstation %dl-packages-desktop))
+
+  (define %dl-dotfiles
+    (append %dl-dotfiles-workstation %dl-dotfiles-desktop))
+               
+#+end_src

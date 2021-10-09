@@ -122,7 +122,7 @@ Prepare some rules, config to be used in base operating system definition. This 
   EndSection")
 #+end_src
 
-** Base Definition
+** Operating System Definition
 
 Now that we've prepped module definitions and labeled values to be used in our base operating system, let's define it. All systems inherit from this defintion, both servers and workstations.
 
@@ -138,7 +138,7 @@ Now that we've prepped module definitions and labeled values to be used in our b
 
 #+END_SRC
 
-** Kernel
+*** Kernel
 
 Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compiled against it. In the future I'd like to move away from lts to get more frequent patches.
 
@@ -149,12 +149,12 @@ Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compi
 
 #+END_SRC
 
-** File Systems
-*** Boot Loader
+*** File Systems
+**** Boot Loader
 
 Define GRUB as the bootloader for all machines and insert an empty filesystem to be overridden by derivative machines.
 
-#+NAME: file-systems-boot-loader 
+#+NAME: file-systems-boot-loader
 #+BEGIN_SRC scheme :tangle build/workstation.scm
   ;; Boot settings (UEFI)
   (bootloader
@@ -165,7 +165,7 @@ Define GRUB as the bootloader for all machines and insert an empty filesystem to
 
 #+END_SRC
 
-*** Template Stub
+**** Template Stub
 
 Stub out an empty filesystem to be overriden later. Guix complains otherwise.
 
@@ -184,19 +184,178 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
 
 These components and their respective dotfiles are shared across all workstations.
 
+*** Compositor
+Compositing is the process of combining visual elements from separate sources into single images, i.e building the window image. Also provides shaders for drop shadows and other effects.
+**** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "picom"
+#+END_SRC
+
+**** dotfiles
+***** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  "picom/picom.conf"
+#+END_SRC
+
+***** picom/picom.conf
+#+NAME: home-services-xresources
+#+BEGIN_SRC conf :visiblity :tangle build/picom/picom.conf
+#################################
+#       Shadows
+#################################
+shadow = true;
+shadow-radius = 15;
+shadow-offset-x = -15;
+shadow-offset-y = -15;
+shadow-opacity = 0.6;
+shadow-ignore-shaped = false;
+shadow-exclude = [
+    "class_g = 'firefox' && window_type = 'utility'",
+    "_NET_WM_STATE@:32a *= '_NET_WM_STATE_HIDDEN'",
+    "_GTK_FRAME_EXTENTS@:c"
+];
+
+#################################
+#       Opacity
+#################################
+inactive-opacity = 1;
+active-opacity = 1;
+frame-opacity = 0.9;
+inactive-opacity-override = false;
+blur-background = true;
+blur-background-frame = true;
+blur-background-fixed = true;
+blur-background-exclude = [
+    "window_type = 'dock'",
+    "window_type = 'desktop'"
+];
+
+#################################
+#       Fading
+#################################
+fading = true;
+fade-delta = 10;  # 30;
+fade-in-step = 0.1;
+fade-out-step = 0.1;
+fade-exclude = [ ];
+
+wintypes:
+{
+  dock = { shadow = false; }
+  dnd = { shadow = false; }
+  popup_menu = { opacity = 1.0; }
+  dropdown_menu = { opacity = 1.0; }
+}
+
+#################################
+#       Rendering
+#################################
+vsync = false;
+unredir-if-possible = false;
+#+END_SRC
+
+*** Color Theme and Fonts
+
+I use my own theme throughout my terminal, emacs, and status bars.
+
+**** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "font-hack"
+ "font-awesome"
+ "font-google-roboto"
+ "font-google-material-design-icons"
+#+END_SRC
+
+**** dotfiles
+***** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  ".Xresources"
+#+END_SRC
+
+***** Xresources
+#+NAME: home-services-xresources
+#+BEGIN_SRC conf :visiblity :tangle build/.Xresources
+! Color palette
+#define RED #EC5F67
+#define GREEN #99C794
+#define YELLOW #FAC863
+#define BLUE #6699CC
+#define PURPLE #C594C5
+#define TEAL #5FB3B3
+#define BLACK #1F2528
+#define LIGHT_GREY #C0C5CE
+#define DARK_GREY #65737E
+
+! Colors 0-15.
+*.color0: BLACK
+*color0:  BLACK
+*.color1: RED
+*color1:  RED
+*.color2: GREEN
+*color2:  GREEN
+*.color3: YELLOW
+*color3:  YELLOW
+*.color4: BLUE
+*color4:  BLUE
+*.color5: PURPLE
+*color5:  PURPLE
+*.color6: TEAL
+*color6:  TEAL
+*.color7: LIGHT_GREY
+*color7:  LIGHT_GREY
+*.color8: DARK_GREY
+*color8:  DARK_GREY
+*.color9: RED
+*color9:  RED
+*.color10: GREEN
+*color10:  GREEN
+*.color11: YELLOW
+*color11:  YELLOW
+*.color12: BLUE
+*color12:  BLUE
+*.color13: PURPLE
+*color13:  PURPLE
+*.color14: TEAL
+*color14:  TEAL
+*.color15: LIGHT_GREY
+*color15:  LIGHT_GREY
+
+! Black color that will not be affected by bold highlighting.
+*.color66: BLACK
+*color66:  BLACK
+
+! Xclock colors.
+XClock*foreground: LIGHT_GREY
+XClock*background: BLACK
+XClock*majorColor:  rgba:d8/de/e9/ff
+XClock*minorColor:  rgba:d8/de/e9/ff
+XClock*hourColor:   rgba:d8/de/e9/ff
+XClock*minuteColor: rgba:d8/de/e9/ff
+XClock*secondColor: rgba:d8/de/e9/ff
+
+Xft.dpi: 96
+Xft.antialias: true
+Xft.hinting: true
+Xft.rgba: rgb
+Xft.autohint: false
+Xft.hintstyle: hintslight
+Xft.lcdfilter: lcddefault
+#+END_SRC
+
 *** Status Bar
-**** Polybar
 
 I use polybar to provide a minimal amount of data in a status bar. Date, time, and a watch over CPU, RAM, and Network.
 
-***** guix packages
-
+**** guix packages
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
-  "polybar"
-#+END_SRC
 
-***** dotfiles
-****** manifest
+  "polybar"
+
+#+END_SRC
+**** dotfiles
+***** manifest
 
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "polybar/colors.ini"
@@ -205,7 +364,7 @@ I use polybar to provide a minimal amount of data in a status bar. Date, time, a
   "polybar/config.ini"
 #+END_SRC
 
-****** polybar/colors.ini
+***** polybar/colors.ini
 
 Color definitions for various modules. @todo: pull this from my global color definition.
 #+NAME: polybar-colors
@@ -238,7 +397,7 @@ blue-gray = #5FB3B3
 
 #+END_SRC
 
-****** polybar/bars.ini
+***** polybar/bars.ini
 Define bars and visual elements.
 #+NAME: polybar-bars
 #+BEGIN_SRC conf :visiblity folded :tangle build/polybar/bars.ini
@@ -413,7 +572,7 @@ bar-used-empty-foreground = ${color.gray}
 
 #+END_SRC
 
-****** polybar/modules.ini
+***** polybar/modules.ini
 Define modules and their functionality.
 #+NAME: polybar-modules
 #+BEGIN_SRC conf :visiblity folded :tangle build/polybar/modules.ini
@@ -758,7 +917,7 @@ content-foreground = ${color.background}
 
 #+END_SRC
 
-****** polybar/config.ini
+***** polybar/config.ini
 Main script for polybar.
 
 #+NAME: polybar-confiid
@@ -831,23 +990,309 @@ compositing-border = over
 
 #+END_SRC
 
-* Export Packages and Dotfiles
+*** File Manager
 
-#+begin_src scheme :tangle build/dl/packages.scm :noweb yes
-(define-module (dl packages)
-  #:export (%dl-packages))
+Thunar provides a rich user interface for file management. The dotfiles configure commands I run with contextual menus based on file type.
 
-(define %dl-packages
+**** guix packages
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+
+  "thunar"
+
+#+END_SRC
+**** dotfiles
+***** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+
+  "Thunar/uca.xml"
+
+#+END_SRC
+***** Thunar/uca.xml
+#+BEGIN_SRC xml :visibility :tangle build/Thunar/uca.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Open Terminal Here</name>
+	<unique-id>1632887846683536-1</unique-id>
+	<command>alacritty --working-directory %f</command>
+	<description>Open an instance of Alacritty at file</description>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>preferences-desktop-wallpaper</icon>
+	<name>Set Wallpaper</name>
+	<unique-id>1632887846683536-2</unique-id>
+        <command>feh --no-fehbg --bg-scale %f</command>
+	<description>Set the wallpaper using feh</description>
+	<patterns>*</patterns>
+	<image-files/>
+</action>
+<action>
+	<icon>catfish</icon>
+	<name>Search</name>
+	<unique-id>1489089852658523-2</unique-id>
+	<command>catfish --path=$f$d</command>
+	<description>Open search dialog at path</description>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>final-term</icon>
+	<name>Extract Archive</name>
+	<unique-id>1489091300385082-4</unique-id>
+	<command>tar xjf %n</command>
+	<description></description>
+	<patterns>*.tar.bz2;*.tbz2;*.tar.gz</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>document-properties</icon>
+	<name>Unzip File</name>
+	<unique-id>1489091300385082-4</unique-id>
+	<command>unzip %n</command>
+	<description></description>
+	<patterns>*.zip</patterns>
+	<other-files/>
+</action>
+</actions>
+#+END_SRC
+*** Notifications
+
+Dunst gives us toast notifications. The dotfiles configure theme. @todo item for me is to remove the hardcoded colors in favor of common definition.
+
+**** guix packages
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+
+  "dunst"
+
+#+END_SRC
+**** dotfiles
+***** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+
+  "dunst/dunstrc"
+
+#+END_SRC
+***** dunst/dunstrc
+
+#+BEGIN_SRC xml :visibility :tangle build/dunst/dunstrc
+
+[global]
+monitor = 0
+follow = mouse
+geometry = "400x60-25+48"
+indicate_hidden = yes
+shrink = no
+separator_height = 0
+padding = 32
+horizontal_padding = 32
+frame_width = 2
+sort = no
+idle_threshold = 120
+font = "SF Pro Display 10"
+line_height = 4
+markup = full
+format = <b>%s</b>\n%b
+alignment = left
+show_age_threshold = 60
+word_wrap = yes
+ignore_newline = no
+stack_duplicates = false
+hide_duplicate_count = yes
+show_indicators = no
+icon_position = left
+sticky_history = yes
+history_length = 20
+browser = /usr/bin/firefox -new-tab
+always_run_script = true
+title = Dunst
+class = Dunst
+max_icon_size = 64
+icon_path = /run/current-system/profile/share/icons/hicolor/24x24/apps
+
+[shortcuts]
+close = esc
+close_all = ctrl+esc
+history = ctrl+grave
+context = ctrl+shift+period
+
+[urgency_low]
+timeout = 4
+background = "#1F2528"
+foreground = "#C0C5CE"
+frame_color = "#1F2528"
+
+[urgency_normal]
+timeout = 8
+background = "#1F2528"
+foreground = "#C0C5CE"
+frame_color = "#1F2528"
+
+[urgency_critical]
+timeout = 8
+background = "#1F2528"
+foreground = "#C0C5CE"
+frame_color = "#1F2528"
+
+[slack]
+appname = Slack
+icon = 'slack'
+icon_id = 'slack'
+
+[hangouts]
+appname = hangups
+icon = 'Hangouts'
+icon_id = 'Hangouts'
+
+#+END_SRC
+** Printers
+*** Brother Laser
+We use a trusty Brother Laser DL-2170W Printer that I bought in high school (!). The thing is a beast. You can also purchase great high yield toners that go for 2500+ pages.
+
+**** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "brlaser"
+ "system-config-printer"
+#+END_SRC
+
+**** dotfiles
+***** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  "printers/printers.conf"
+#+END_SRC
+
+***** printers.conf
+#+NAME: home-services-printers
+#+BEGIN_SRC conf :tangle build/printers/printers.conf
+# Printer configuration file for CUPS v2.3.3
+# Written by cupsd on 2021-10-08 16:30
+# DO NOT EDIT THIS FILE WHEN CUPSD IS RUNNING
+# @todo: Bring this into guix-home somehow, currently not
+# being used
+NextPrinterId 5
+<Printer Brother_HL-2170W>
+PrinterId 4
+UUID urn:uuid:d80c78bd-fbd3-33f1-6f72-9c7ea713aa0c
+Info Brother HL-2170W series
+Location Upstairs Office
+MakeModel Brother HL-2270DW series, using brlaser v6
+DeviceURI dnssd://Brother%20HL-2170W%20series._pdl-datastream._tcp.local/
+State Idle
+StateTime 1633725056
+ConfigTime 1633354093
+Type 4180
+Accepting Yes
+Shared Yes
+JobSheets none none
+QuotaPeriod 0
+PageLimit 0
+KLimit 0
+OpPolicy default
+ErrorPolicy stop-printer
+Attribute marker-colors \#000000,#000000
+Attribute marker-levels -1,74
+Attribute marker-names Black Toner Cartridge,Drum Unit
+Attribute marker-types toner,opc
+Attribute marker-change-time 1633725056
+</Printer>
+#+END_SRC
+
+#+NAME: file-systems-boot-loader
+#+BEGIN_SRC scheme :tangle build/workstation.scm
+
+#+END_SRC
+
+** Terminals
+*** Alacritty
+We chose Alacritty primarily because of it's blazing fast performance.
+
+**** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "alacritty"
+#+END_SRC
+
+**** dotfiles
+***** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  "alacritty/alacritty.yml"
+#+END_SRC
+
+***** alacritty.yml
+#+NAME: home-services-alacritty
+#+BEGIN_SRC conf :visiblity :tangle build/alacritty/alacritty.yml
+# @todo: Map colors to common definition
+env:
+  term: alacritty
+
+background_opacity: 1.0
+
+cursor:
+  style: Block
+
+window:
+  padding:
+    x: 8
+    y: 8
+  dynamic_padding: true
+  decorations: full
+  title: Alacritty
+  class:
+    instance: Alacritty
+    general: Alacritty
+
+# Font configuration
+font:
+  normal:
+    family: Hack
+  size: 10
+
+colors:
+  # Default colors
+  primary:
+    background: '0x1f2528'
+    foreground: '0xc0c5ce'
+
+  # Normal colors
+  normal:
+    black:   '0x1f2528'
+    red:     '0xec5f67'
+    green:   '0x99c794'
+    yellow:  '0xfac863'
+    blue:    '0x6699cc'
+    magenta: '0xc594c5'
+    cyan:    '0x5fb3b3'
+    white:   '0xc0c5ce'
+
+  # Bright colors
+  bright:
+    black:   '0x65737e'
+    red:     '0xec5f67'
+    green:   '0x99c794'
+    yellow:  '0xfac863'
+    blue:    '0x6699cc'
+    magenta: '0xc594c5'
+    cyan:    '0x5fb3b3'
+    white:   '0xd8dee9'
+#+END_SRC
+
+* Export
+
+#+begin_src scheme :tangle build/dl/workstation.scm :noweb yes
+(define-module (dl workstation)
+  #:export (%dl-packages-workstation)
+  #:export (%dl-dotfiles-workstation))
+
+(define %dl-packages-workstation
   (list
   <<packages-manifest>>
 ))
-#+end_src
 
-#+begin_src scheme :tangle build/dl/dotfiles.scm :noweb yes
-(define-module (dl dotfiles)
-  #:export (%dl-dotfiles))
-
-(define %dl-dotfiles
+(define %dl-dotfiles-workstation
   (list
   <<dotfiles-manifest>>
 ))
