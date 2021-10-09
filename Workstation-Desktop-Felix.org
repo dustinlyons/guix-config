@@ -34,19 +34,19 @@ Load the symbol ~dotfiles~ that contains a list of all dotfiles defined as part 
 #+NAME: dependencies
 #+BEGIN_SRC scheme  :tangle build/felix.scm
 ;; Returns a list of home-file-service structs for each dotfile
-;; defined as part of "manifest" definitions you'll find
-;; sprinkled throughout all configurations
+;; If you're new here: https://en.wikipedia.org/wiki/CAR_and_CDR
 (define (dl-generate-dotfiles-services dotfiles)
-  (if (null? dotfiles)
-    '()
+  ;; Base case
+  (if (null? dotfiles) '()
+  ;; Build out path names
   (let ((config-file (string-append "config/" (car dotfiles)))
-        (build-file  (string-append "build/" (car dotfiles))))
-  (cons (simple-service 'load-build-files
-                         home-files-service-type
-                         (list
-                           `(,config-file
-                             ,(local-file build-file "config"))))
-                         (dl-generate-dotfiles-services (cdr dotfiles))))))
+    (build-file (string-append "build/" (car dotfiles))))
+      ;; Create new list item we will return
+      (cons (simple-service 'load-build-files
+        home-files-service-type
+          (list `(,config-file ,(local-file build-file "config"))))
+      ;; Create rest of dotfiles we haven't seen
+      (dl-generate-dotfiles-services (cdr dotfiles))))))
 #+END_SRC
 
 * Home Environment
