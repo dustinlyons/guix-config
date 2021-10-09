@@ -9,6 +9,8 @@
 
 My entire operating system configuration (guix), and all of my dotfiles, defined in Scheme. It's interpreted by the guix daemon to generate computers I use day-to-day, machines I have running in my home-lab, and virtual machines within a hypervisor.
 
+The .org files you see represents the code itself. I use literate configuration to interweave documentation, and Makefile to [tangle](https://orgmode.org/worg/org-contrib/babel/intro.html) the code into seperate files.
+
 I'm actively working on this as of October, 2021.
 
 ### Why?
