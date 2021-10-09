@@ -7,21 +7,26 @@
 ## Overview
 ### What is this?
 
-My entire operating system configuration (guix), and all of my dotfiles, defined in Scheme. It's interpreted by the guix daemon to generate computers I use day-to-day, machines I have running in my home-lab, and virtual machines within a hypervisor.
+tl;dr
 
-The .org files you see represents the code itself. I use literate configuration to interweave documentation, and Makefile to [tangle](https://orgmode.org/worg/org-contrib/babel/intro.html) the code into seperate files.
+The "functional programming" equivalent to operating systems
+
+The configuration of my operating system (GuixSD) and day-to-day software (who are we kidding, emacs) defined in literate configuration style. The .org files represent the code itself. Makefile is used to [tangle](https://orgmode.org/worg/org-contrib/babel/intro.html) the code into seperate files. These files are then interpreted by the guix daemon to generate packages, dotfile configuration, system-level changes. The result is my entire OS written in declarative Scheme.
+
+Currently this repo powers my Desktop machine, but I am working on expanding it to a few laptops, machines I have running in my home-lab and virtual machines within a hypervisor.
 
 I'm actively working on this as of October, 2021.
 
 ### Why?
 
-With everything defined in this way I can treat my system as one program without pulling my hair out.
+With everything defined in this way I can treat my system as one program without pulling my hair out. 
 
 Every change to my system is now deployed from the [guix store](https://guix.gnu.org/manual/en/html_node/The-Store.html) thanks to [guix home](https://guix.gnu.org/manual/devel/en/html_node/Home-Configuration.html). This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness with even my dotfiles.
 
 Other advantages: 
 - theming now becomes easier. It's all here, I can define one set of colors, fonts, or margins to be used everywhere. Technically possible before but again, don't want to pull my hair out.
 - no more "polutting" my system with experiments. I can try different blockchain projects, work with a client that needs .NET, or do anything I want without feeling like I need to clean it up later.
+- Scheme is fun to hack on, and I hack on my home-lab for fun
 
 Learn more about guix [here](https://guix.gnu.org/).
 
