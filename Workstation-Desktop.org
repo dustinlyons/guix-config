@@ -497,7 +497,7 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
           <enabled>false</enabled>
           <name>rofi</name>
         </startupnotify>
-        <command>~/.config/rofi/launcher.sh</command>
+        <command>rofi -no-lazy-grab -show drun -theme ~/.config/rofi/theme.rasi</command>
       </action>
     </keybind>
     <keybind key="A-space">
