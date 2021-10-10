@@ -10,16 +10,16 @@ The configuration of my operating system, Guix Linux, and day-to-day software (w
 No more traditional dotfiles. Hello Scheme and literate config.
 
 ## Why?
-With everything defined in this way I can treat my system as one program without pulling my hair out. It's 100% reproducible.
+With everything defined in this way I can treat my system as one program. It's 100% reproducible.
 
-Every change to my system is now deployed from the [guix store](https://guix.gnu.org/manual/en/html_node/The-Store.html) thanks to [guix home](https://guix.gnu.org/manual/devel/en/html_node/Home-Configuration.html). This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness with even my dotfiles.
+Every change to my system is now deployed from the [Guix Store](https://guix.gnu.org/manual/en/html_node/The-Store.html) thanks to [Guix Home](https://guix.gnu.org/manual/devel/en/html_node/Home-Configuration.html). This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness with even my dotfiles.
 
 Other advantages: 
 - theming now becomes easier. It's all here, I can define one set of colors, fonts, or margins to be used everywhere. Technically possible before but again, don't want to pull my hair out.
 - no more "polutting" my system with experiments. I can try different blockchain projects, work with a client that needs .NET, or do anything I want without feeling like I need to clean it up later.
 - Scheme is fun to hack on, and I hack on my home-lab for fun
 
-Learn more about guix [here](https://guix.gnu.org/).
+Learn more about Guix [here](https://guix.gnu.org/).
 
 ## Installation
 This project isn't intended for outside use yet; please just use as an example. I use Makefile to tangle org files into their own configs and then ```guix system reconfigure``` to inject those config files into ```.config```, create symlinks, set environment variables, etc. 
