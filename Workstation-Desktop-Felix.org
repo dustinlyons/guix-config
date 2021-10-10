@@ -1,4 +1,4 @@
-#+TITLE: Workstation - Felix
+#+TITLE: Workstation - Desktop - Felix
 #+STARTUP: content
 #+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
 #+PROPERTY: header-args :tangle-mode (identity #o555)
@@ -7,31 +7,69 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
+- [[#dependencies][Dependencies]]
+- [[#operating-system-definition][Operating System Definition]]
+- [[#home-environment-definition][Home Environment Definition]]
+  - [[#utility-functions][Utility Functions]]
+  - [[#packages][Packages]]
+  - [[#services][Services]]
+    - [[#keyboard][Keyboard]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#xmodmap][.Xmodmap]]
+    - [[#bash][Bash]]
+    - [[#dotfiles][Dotfiles]]
 :END:
 
 * Dependencies
 
 #+NAME: dependencies
-#+BEGIN_SRC scheme  :tangle build/felix.scm
-(add-to-load-path (dirname (current-filename)))
-(use-modules (gnu home)
-             (gnu home-services)
-             (gnu home-services shells)
-             (gnu services)
-             (gnu packages)
-             (guix build utils)
-             (guix monads)
-             (gnu packages admin)
-             (dl utils)
-             (guix gexp))
+#+BEGIN_SRC scheme  :tangle build/felix-home.scm
+(define-module (felix-home)
+  #:use-module (gnu home)
+  #:use-module (desktop)
+  #:use-module (dl utils)
+  #:use-module (gnu home-services)
+  #:use-module (gnu home-services shells)
+  #:use-module (gnu services)
+  #:use-module (gnu system)
+  #:use-module (gnu packages)
+  #:use-module (guix build utils)
+  #:use-module (gnu packages admin)
+  #:use-module (guix gexp))
 #+END_SRC
 
-* Utility Functions
+* Operating System Definition
+
+Define a new Desktop operating system.
+
+#+NAME: desktop-operating-system
+#+BEGIN_SRC scheme  :tangle build/felix-os.scm
+(define-module (felix-os)
+  #:use-module (desktop)
+  #:use-module (gnu services)
+  #:use-module (gnu system)
+  #:use-module (gnu packages))
+
+(operating-system
+ (inherit desktop-operating-system)
+ (host-name "felix"))
+#+END_SRC
+
+* Home Environment Definition
+
+Here we load most of the software and it's respective configuration I use day-to-day. The list of packages is compiled from the various 'guix-packages' sections found throughout this file and others.
+
+Dotfiles (i.e configuration files) are installed by Guix Home.
+
+Please note: Guix Home defines "services" below, not as Shepherd services, like GuixSD does, but as plugins to perform a build action on your home environment. Do not get them confused.
+
+** Utility Functions
 
 This function takes the various dotfiles manifests I have defined in my literate configuration and maps them to real files managed by guix home.
 
 #+NAME: dependencies
-#+BEGIN_SRC scheme  :tangle build/felix.scm
+#+BEGIN_SRC scheme  :tangle build/felix-home.scm
 ;; Returns a list of home-file-service structs for each dotfile
 (define (dl/generate-dotfiles-services dotfiles)
   (if (null? dotfiles)
@@ -47,16 +85,10 @@ This function takes the various dotfiles manifests I have defined in my literate
       (dl/generate-dotfiles-services (cdr dotfiles))))))
 #+END_SRC
 
-* Home Environment Definition
+** Packages
 
-Here we load most of the software and it's respective configuration I use day-to-day. The list of packages is compiled from the various 'guix-packages' sections found throughout this file and others.
-
-Dotfiles (i.e configuration files) are installed by Guix Home.
-
-Please note: Guix Home defines "services" below, not as Shepherd services, like GuixSD does, but as plugins to perform a build action on your home environment. Do not get them confused.
-
-#+name: profiles
-#+begin_src scheme  :tangle build/felix.scm
+#+name: home-environment-base 
+#+begin_src scheme  :tangle build/felix-home.scm
 (home-environment
   (packages (map specification->package+output %dl-packages))
   (services (append (list
@@ -66,15 +98,16 @@ Please note: Guix Home defines "services" below, not as Shepherd services, like 
 
 *** Keyboard
 Map CAPS LOCK to Control key.
-**** manifest
+
+**** dotfiles
+***** manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   ".Xmodmap"
 #+END_SRC
-**** dotfiles
-***** Xmodmap
+***** .Xmodmap
 
 #+NAME: home-services-keyboard
-#+BEGIN_SRC conf :visiblity folded :tangle build/.Xmodmap
+#+BEGIN_SRC conf :tangle build/.Xmodmap
 clear lock
 clear control
 keycode 66 = Control_L
@@ -85,7 +118,7 @@ add control = Control_L Control_R
 I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
 
 #+NAME: home-services-bash
-#+BEGIN_SRC scheme  :tangle build/felix.scm
+#+BEGIN_SRC scheme  :tangle build/felix-home.scm
 (service home-bash-service-type
         (home-bash-configuration
           (guix-defaults? #f)
@@ -136,7 +169,7 @@ source $OSH/oh-my-bash.sh
 This function takes the various dotfiles manifests I have defined in my literate configuration and maps them to real files managed by guix home.
 
 #+NAME: home-services
-#+BEGIN_SRC scheme  :tangle build/felix.scm :noweb yes
+#+BEGIN_SRC scheme  :tangle build/felix-home.scm :noweb yes
 ;; Generates home-files-services for each dotfile defined
 ;; throughout configuration inheritance
 (dl/generate-dotfiles-services

@@ -1,4 +1,4 @@
-#+TITLE: Workstation
+#+TITLE: Base Definition - Workstation
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
 #+PROPERTY: header-args:conf :tangle-mode (identity #o555)
@@ -6,35 +6,68 @@
 
 * Table of Contents
 :PROPERTIES:
-:TOC: :include all :ignore this
+:TOC: :include all :ignore this :depth 5
 :CONTENTS:
+- [[#channels][Channels]]
+- [[#operating-system-definition][Operating System Definition]]
+  - [[#dependencies][Dependencies]]
+  - [[#keyboard-and-mouse][Keyboard and Mouse]]
+    - [[#libinput][libinput]]
+  - [[#operating-system-definition][Operating System Definition]]
+    - [[#kernel][Kernel]]
+    - [[#file-systems][File Systems]]
+      - [[#boot-loader][Boot Loader]]
+      - [[#template-stub][Template Stub]]
+  - [[#x-window-system-components][X Window System Components]]
+    - [[#compositor][Compositor]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#picompicomconf][picom/picom.conf]]
+    - [[#color-theme-and-fonts][Color Theme and Fonts]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#xresources][Xresources]]
+    - [[#status-bar][Status Bar]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#polybarcolorsini][polybar/colors.ini]]
+        - [[#polybarbarsini][polybar/bars.ini]]
+        - [[#polybarmodulesini][polybar/modules.ini]]
+        - [[#polybarconfigini][polybar/config.ini]]
+    - [[#file-manager][File Manager]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#thunarucaxml][Thunar/uca.xml]]
+    - [[#notifications][Notifications]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#dunstdunstrc][dunst/dunstrc]]
+  - [[#printers][Printers]]
+    - [[#brother-laser][Brother Laser]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#printersconf][printers.conf]]
+  - [[#terminals][Terminals]]
+    - [[#alacritty][Alacritty]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#alacrittyyml][alacritty.yml]]
+  - [[#editors][Editors]]
+    - [[#vim][Vim]]
+    - [[#emacs][Emacs]]
+      - [[#guix-packages][guix packages]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#zeroed-themeel][zeroed-theme.el]]
+- [[#export][Export]]
 :END:
-
-* Introduction
-
-** What is this?
-
-My entire operating system configuration (guix) with all of my dotfiles defined in Scheme.
-
-** Why?
-
-Reproducible, determinstic builds and our ability to simply declare the state of things has matured so much I had to give this experiment a try. With everything defined in this way, without pulling my hair out I can treat my system as one program, instead of a scattering of dependencies that don't know about each other.
-
-Moreover, every change to my system is now deployed from the [[guix store][guix store]] thanks to [[guix home][guix home]]. This means I get rollbacks, transactional upgrades, fine-grained profiles, and other guix goodness for free.
-
-Other advantages: theming now becomes easier. It's all here, and I can define one set of colors to be used literally everywhere.
-
-** Okay, I'm intrigured. Anything else?
-
-This file is very large, don't be alarmed. In my editor code sections fold by default, so if you're reading this in code, maybe try reading the rendered org version. The dotfiles, shell scripts, etc. you see below get tangled in later. (see [[org-babel][org-babel]] for more info on tangling)
-
-** Thank you 
-
-*** System Crafters
-
-Thank you [[https://github.com/daviwil][David Wilson]], your incredible video series on Emacs, Guix, and your sample configurations brought me down this journey.
-
-If you want a crash course into these tools, check out his [[https://www.youtube.com/c/SystemCrafters][YouTube series]].
 
 * Channels
 
@@ -186,13 +219,13 @@ These components and their respective dotfiles are shared across all workstation
 
 *** Compositor
 Compositing is the process of combining visual elements from separate sources into single images, i.e building the window image. Also provides shaders for drop shadows and other effects.
-**** guix packages
+**** *guix packages*
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "picom"
 #+END_SRC
 
-**** dotfiles
+**** *dotfiles*
 ***** manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "picom/picom.conf"
@@ -1280,6 +1313,90 @@ colors:
     white:   '0xd8dee9'
 #+END_SRC
 
+** Editors
+Back then: vim golf
+Now: emacs os
+
+*** Vim
+*** Emacs
+Most of my configuration is defined within Workstation-Emacs.org, however, in some cases where it makes sense we have supporting files here.
+
+**** guix packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "emacs"
+#+END_SRC
+
+**** dotfiles
+***** manifest
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  "emacs/zeroed-theme.el"
+#+END_SRC
+
+***** zeroed-theme.el
+#+NAME: emacs-theme-files
+#+BEGIN_SRC elisp :tangle build/emacs/zeroed-theme.el
+(require 'autothemer)
+
+(autothemer-deftheme
+  zeroed "A theme for my lab."
+
+  ;; Specify terminal types
+  ((((class color) (min-colors #xFFFFFF)) 
+    ((class color) (min-colors #xFF)))
+
+   ;; Define color palette
+   (zeroed-red "#EC5F67")
+   (zeroed-green "#99C794")
+   (zeroed-yellow "#FFC247")
+   (zeroed-orange "#FA9850")
+   (zeroed-blue "#6699CC")
+   (zeroed-purple "#C594C5")
+   (zeroed-cyan "#5FB3B3")
+   (zeroed-light-grey "#C0C5CE")
+   (zeroed-dark-grey "#1F2528")
+   (zeroed-dark-grey-2 "#1A1F21")
+   (zeroed-greyed-out "#2F393D")
+   (zeroed-white "#FFFFFF"))
+
+    ;; Face specifications
+   ((default (:foreground zeroed-light-grey :background zeroed-dark-grey))
+    (cursor (:background zeroed-light-grey)) ;; Block cursor color
+    (mode-line (:background zeroed-dark-grey-2)) ;; Block cursor color
+    (region (:background zeroed-dark-grey-2)) ;; Selection box
+    (font-lock-keyword-face (:foreground zeroed-blue))
+    (font-lock-comment-face (:foreground zeroed-orange))
+    (font-lock-comment-delimiter-face (:foreground zeroed-orange))
+    (link (:foreground zeroed-blue :weight 'bold :underline t))
+    (org-block (:foreground zeroed-light-grey :background zeroed-dark-grey-2))
+    (org-block-begin-line (:foreground zeroed-light-grey :background zeroed-purple))
+    (org-block-end-line (:foreground zeroed-light-grey :background zeroed-purple))
+    (org-document-info-keyword (:foreground zeroed-green :weight 'bold))
+    (org-document-title (:foreground zeroed-green :weight 'bold))
+    (org-level-1 (:foreground zeroed-cyan))
+    (org-level-2 (:foreground zeroed-yellow))
+    (org-level-3 (:foreground zeroed-blue))
+    (org-level-4 (:foreground zeroed-orange))
+    (doom-modeline-buffer-modified (:foreground zeroed-red :weight 'bold))
+    (org-meta-line (:foreground zeroed-light-grey :background zeroed-dark-grey))
+    (org-headline-done (:foreground zeroed-greyed-out :strike-through t))
+    (minibuffer-prompt (:foreground zeroed-cyan))
+    (org-drawer (:foreground zeroed-blue))
+    (org-special-keyword (:foreground zeroed-blue))
+    (org-table (:foreground zeroed-purple)))
+
+    ;; Forms after the face specifications are evaluated
+    (custom-theme-set-variables 'zeroed
+        `(ansi-color-names-vector [,zeroed-red
+                                   ,zeroed-green
+                                   ,zeroed-yellow
+                                   ,zeroed-purple
+                                   ,zeroed-yellow
+                                   ,zeroed-orange
+                                   ,zeroed-cyan])))
+   (provide-theme 'zeroed)
+#+END_SRC
+
 * Export
 
 #+begin_src scheme :tangle build/dl/workstation.scm :noweb yes
@@ -1297,3 +1414,4 @@ colors:
   <<dotfiles-manifest>>
 ))
 #+end_src
+
