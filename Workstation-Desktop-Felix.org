@@ -33,22 +33,17 @@ This function takes the various dotfiles manifests I have defined in my literate
 #+NAME: dependencies
 #+BEGIN_SRC scheme  :tangle build/felix.scm
 ;; Returns a list of home-file-service structs for each dotfile
-;; If you're new here: https://en.wikipedia.org/wiki/CAR_and_CDR
 (define (dl/generate-dotfiles-services dotfiles)
-
-  ;; Base case
-  (if (null? dotfiles) '()
-
-  ;; Build out path names
+  (if (null? dotfiles)
+    '()
   (let ((config-file (string-append "config/" (car dotfiles)))
-    (build-file (string-append "build/" (car dotfiles))))
-
-      ;; Create new list item we will return
-      (cons (simple-service 'load-build-files
+        (build-file (string-append "build/" (car dotfiles))))
+    (cons
+      (simple-service 'load-build-files
         home-files-service-type
-          (list `(,config-file ,(local-file build-file "config"))))
-
-      ;; Create rest of dotfiles we haven't seen
+          (list ;; pair of destination path and source path
+            `(,config-file
+            ,(local-file build-file "config"))))
       (dl/generate-dotfiles-services (cdr dotfiles))))))
 #+END_SRC
 
@@ -106,7 +101,7 @@ export GUIX_PROFILE=\"$HOME/.guix-profile\"
 # Few other useful exports
 export LANG=en_US.UTF-8
 export LIBGL_ALWAYS_INDIRECT=1 # Silenced a few warnings, otherwise not sure
-    
+
 # We are being invoked from a non-interactive shell.  If this
 # is an SSH session (as in \"ssh host command\"), source
 # /etc/profile so we get PATH and other essential variables.
@@ -117,6 +112,9 @@ then
 # Don't do anything else.
 return
 fi
+
+# Aliases we like
+alias ls='ls --color'
     
 # Source system-wide configuration
 # i.e run everything in these files
