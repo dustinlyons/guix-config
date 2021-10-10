@@ -7,7 +7,18 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-
+- [[#operating-system-definition][Operating System Definition]]
+- [[#home-environment-definition][Home Environment Definition]]
+  - [[#dependencies][Dependencies]]
+  - [[#utility-functions][Utility Functions]]
+  - [[#packages][Packages]]
+  - [[#services][Services]]
+    - [[#keyboard][Keyboard]]
+      - [[#dotfiles][dotfiles]]
+        - [[#manifest][manifest]]
+        - [[#xmodmap][.Xmodmap]]
+    - [[#bash][Bash]]
+    - [[#dotfiles][Dotfiles]]
 :END:
 
 * Operating System Definition
