@@ -7,37 +7,8 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-- [[#dependencies][Dependencies]]
-- [[#operating-system-definition][Operating System Definition]]
-- [[#home-environment-definition][Home Environment Definition]]
-  - [[#utility-functions][Utility Functions]]
-  - [[#packages][Packages]]
-  - [[#services][Services]]
-    - [[#keyboard][Keyboard]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
-        - [[#xmodmap][.Xmodmap]]
-    - [[#bash][Bash]]
-    - [[#dotfiles][Dotfiles]]
+
 :END:
-
-* Dependencies
-
-#+NAME: dependencies
-#+BEGIN_SRC scheme  :tangle build/felix-home.scm
-(define-module (felix-home)
-  #:use-module (gnu home)
-  #:use-module (desktop)
-  #:use-module (dl utils)
-  #:use-module (gnu home-services)
-  #:use-module (gnu home-services shells)
-  #:use-module (gnu services)
-  #:use-module (gnu system)
-  #:use-module (gnu packages)
-  #:use-module (guix build utils)
-  #:use-module (gnu packages admin)
-  #:use-module (guix gexp))
-#+END_SRC
 
 * Operating System Definition
 
@@ -63,6 +34,24 @@ Here we load most of the software and it's respective configuration I use day-to
 Dotfiles (i.e configuration files) are installed by Guix Home.
 
 Please note: Guix Home defines "services" below, not as Shepherd services, like GuixSD does, but as plugins to perform a build action on your home environment. Do not get them confused.
+
+** Dependencies
+
+#+NAME: dependencies
+#+BEGIN_SRC scheme  :tangle build/felix-home.scm
+(define-module (felix-home)
+  #:use-module (gnu home)
+  #:use-module (desktop)
+  #:use-module (dl utils)
+  #:use-module (gnu home-services)
+  #:use-module (gnu home-services shells)
+  #:use-module (gnu services)
+  #:use-module (gnu system)
+  #:use-module (gnu packages)
+  #:use-module (guix build utils)
+  #:use-module (gnu packages admin)
+  #:use-module (guix gexp))
+#+END_SRC
 
 ** Utility Functions
 
