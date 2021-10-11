@@ -29,7 +29,7 @@ SHELL = /bin/sh
 
 --install-felix-home:
 	@echo "Installing new guix home generation..."
-	guix home --dry-run --load-path=./build reconfigure ./build/felix-home.scm
+	guix home --load-path=./build reconfigure ./build/felix-home.scm
 
 --install-felix-home-dry-run:
 	@echo "Installing new guix home generation..."
