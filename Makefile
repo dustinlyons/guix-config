@@ -39,6 +39,6 @@ clean:
 	@echo "Removing build artifacts..."
 	@rm -rf build
 
-install-home: --install-felix-home-dry-run
-install-system: --install-felix-dry-run
+install-home: --install-felix-home
+install-system: --install-felix
 install: install-system install-home
