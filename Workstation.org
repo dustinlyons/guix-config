@@ -9,7 +9,7 @@
 :TOC: :include all :ignore this :depth 5
 :CONTENTS:
 - [[#channels][Channels]]
-- [[#operating-system-definition][Operating System Definition]]
+- [[#operating-system][Operating System]]
   - [[#dependencies][Dependencies]]
   - [[#keyboard-and-mouse][Keyboard and Mouse]]
     - [[#libinput][libinput]]
@@ -93,7 +93,7 @@ Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_n
               "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5")))))
 #+END_SRC
 
-* Operating System Definition 
+* Operating System
 
   I build up my system configurations using [[https://orgmode.org/manual/Extracting-Source-Code.html][noweb]] style syntax. This enables us to write a base operating system available to be inherited by concrete system definitions (laptops, desktops, servers).
 

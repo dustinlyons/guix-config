@@ -8,7 +8,7 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-- [[#operating-system-definition][Operating System Definition]]
+- [[#operating-system][Operating System]]
   - [[#dependencies][Dependencies]]
   - [[#base-definition][Base Definition]]
   - [[#kernel][Kernel]]
@@ -38,7 +38,7 @@
 - [[#export][Export]]
 :END:
 
-* Operating System Definition
+* Operating System
 
 This base definition outlines reasonable choices for using Linux as a Desktop environment in 2021. This is not likely to change anytime soon; I leave more user specific configuration up to implementations of this.
 
@@ -197,7 +197,6 @@ We save most of the package loading for our independent machine definitions. How
             (eq? (service-kind service) gdm-service-type))
 		  %desktop-services)))))
 #+END_SRC
-
 
 * X Window System Components
 ** Window Manager
@@ -1063,7 +1062,6 @@ element selected {
   border-color: #FAC863;
 }
 #+END_SRC
-
 
 * Export 
 

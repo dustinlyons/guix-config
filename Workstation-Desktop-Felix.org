@@ -7,8 +7,8 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-- [[#operating-system-definition][Operating System Definition]]
-- [[#home-environment-definition][Home Environment Definition]]
+- [[#operating-system][Operating System]]
+- [[#home-environment][Home Environment]]
   - [[#dependencies][Dependencies]]
   - [[#utility-functions][Utility Functions]]
   - [[#packages][Packages]]
@@ -21,9 +21,8 @@
     - [[#dotfiles][Dotfiles]]
 :END:
 
-* Operating System Definition
-
-Define a new Desktop operating system.
+* Operating System
+This machine sits on my desk at home, so define and name a new Desktop Operating System.
 
 #+NAME: desktop-operating-system
 #+BEGIN_SRC scheme  :tangle build/felix-os.scm
@@ -38,13 +37,12 @@ Define a new Desktop operating system.
  (host-name "felix"))
 #+END_SRC
 
-* Home Environment Definition
-
+* Home Environment
 Here we load most of the software and it's respective configuration I use day-to-day. The list of packages is compiled from the various 'guix-packages' sections found throughout this file and others.
 
 Dotfiles (i.e configuration files) are installed by Guix Home.
 
-Please note: Guix Home defines "services" below, not as Shepherd services, like GuixSD does, but as plugins to perform a build action on your home environment. Do not get them confused.
+Please note: Guix Home defines "services" below, not as Shepherd services, like Guix Linux does, but as plugins to perform a build action on your home environment. Do not get them confused.
 
 ** Dependencies
 
@@ -95,15 +93,16 @@ This function takes the various dotfiles manifests I have defined in my literate
 #+END_SRC
 
 ** Services
-
 *** Keyboard
 
 Map CAPS LOCK to Control key.
 
 ***** Dotfiles Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   ".Xmodmap"
 #+END_SRC
+
 ***** Dotfiles
 ****** .Xmodmap
 
