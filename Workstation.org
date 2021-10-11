@@ -1418,9 +1418,13 @@ We export the various dotfiles and package definitions described throughout this
   #:export (%dl-dotfiles-workstation))
 
 (define %dl-packages-workstation
-  (list <<packages-manifest>>))
+  (list
+  <<packages-manifest>>
+  ))
 
 (define %dl-dotfiles-workstation
-  (list <<dotfiles-manifest>>))
+  (list
+  <<dotfiles-manifest>>
+  ))
 #+END_SRC
 

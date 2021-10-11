@@ -163,39 +163,38 @@ We save most of the package loading for our independent machine definitions. How
 #+NAME: services-shepherd 
 #+BEGIN_SRC scheme :tangle build/desktop.scm
   (services (cons* (service special-files-service-type
-	    `(("/bin/sh" ,(file-append bash "/bin/bash"))
-	      ("/bin/bash" ,(file-append bash "/bin/bash"))
-              ("/usr/bin/env" ,(file-append coreutils "/bin/env"))))
+   `(("/bin/sh" ,(file-append bash "/bin/bash"))
+     ("/bin/bash" ,(file-append bash "/bin/bash"))
+     ("/usr/bin/env" ,(file-append coreutils "/bin/env"))))
 	   
-          (simple-service 'custom-udev-rules udev-service-type 
-            (list nvidia-driver))
+     (simple-service 'custom-udev-rules udev-service-type 
+       (list nvidia-driver))
 
-          (service kernel-module-loader-service-type
-            '("ipmi_devintf"
-	      "nvidia"
-	      "nvidia_modeset"
-	      "nvidia_uvm"))
+     (service kernel-module-loader-service-type
+      '("ipmi_devintf"
+        "nvidia"
+        "nvidia_modeset"
+        "nvidia_uvm"))
 
-	  (service cups-service-type
-	    (cups-configuration
-	      (web-interface? #t)
-	      (extensions
-		(list cups-filters brlaser))))
+     (service cups-service-type
+       (cups-configuration
+         (web-interface? #t)
+         (extensions
+           (list cups-filters brlaser))))
 
-          (service slim-service-type (slim-configuration
-            (display ":0")
-            (vt "vt8")
-            (xorg-configuration (xorg-configuration
-                                  (keyboard-layout (keyboard-layout "us"
-                                    #:options '("ctrl:nocaps")))
-                                  (modules
-				    (cons* nvidia-driver %default-xorg-modules))
-                                  (server (transform xorg-server))
-                                  (drivers '("nvidia"))))))
+     (service slim-service-type (slim-configuration
+       (display ":0")
+       (vt "vt8")
+       (xorg-configuration (xorg-configuration
+         (keyboard-layout (keyboard-layout "us"
+           #:options '("ctrl:nocaps")))
+          (modules (cons* nvidia-driver %default-xorg-modules))
+            (server (transform xorg-server))
+            (drivers '("nvidia"))))))
 
-          (remove (lambda (service)
-            (eq? (service-kind service) gdm-service-type))
-		  %desktop-services)))))
+     (remove (lambda (service)
+       (eq? (service-kind service) gdm-service-type))
+	  %desktop-services)))))
 #+END_SRC
 
 * X Window System Components
@@ -1073,10 +1072,14 @@ We export the various dotfiles and package definitions described throughout this
   #:export (%dl-dotfiles-desktop))
 
 (define %dl-packages-desktop
-  (list <<packages-manifest>>))
+  (list
+    <<packages-manifest>>
+  ))
 
 (define %dl-dotfiles-desktop
-  (list <<dotfiles-manifest>>))
+  (list
+    <<dotfiles-manifest>>
+  ))
 #+end_src
 
 #+begin_src scheme :tangle build/dl/utils.scm :noweb yes
