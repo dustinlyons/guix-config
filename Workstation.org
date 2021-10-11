@@ -18,53 +18,53 @@
     - [[#file-systems][File Systems]]
       - [[#boot-loader][Boot Loader]]
       - [[#template-stub][Template Stub]]
-  - [[#x-window-system-components][X Window System Components]]
-    - [[#compositor][Compositor]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+  - [[#x-window-systems][X Window Systems]]
+    - [[#compositor---picom][Compositor - Picom]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#picompicomconf][picom/picom.conf]]
     - [[#color-theme-and-fonts][Color Theme and Fonts]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
-        - [[#xresources][Xresources]]
-    - [[#status-bar][Status Bar]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
+        - [[#xresources][.Xresources]]
+    - [[#status-bar---polybar][Status Bar - Polybar]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#polybarcolorsini][polybar/colors.ini]]
         - [[#polybarbarsini][polybar/bars.ini]]
         - [[#polybarmodulesini][polybar/modules.ini]]
         - [[#polybarconfigini][polybar/config.ini]]
-    - [[#file-manager][File Manager]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+    - [[#file-manager---thunar][File Manager - Thunar]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#thunarucaxml][Thunar/uca.xml]]
-    - [[#notifications][Notifications]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+    - [[#notifications---dunst][Notifications - Dunst]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#dunstdunstrc][dunst/dunstrc]]
   - [[#printers][Printers]]
-    - [[#brother-laser][Brother Laser]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+    - [[#brother-laser-dl-2170w][Brother Laser DL-2170W]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#printersconf][printers.conf]]
-  - [[#terminals][Terminals]]
+  - [[#terminal---alacritty][Terminal - Alacritty]]
     - [[#alacritty][Alacritty]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#alacrittyyml][alacritty.yml]]
   - [[#editors][Editors]]
     - [[#vim][Vim]]
     - [[#emacs][Emacs]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#zeroed-themeel][zeroed-theme.el]]
 - [[#export][Export]]
 :END:
@@ -213,24 +213,27 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
                  %base-file-systems))))
 #+END_SRC
 
-** X Window System Components
+
+** X Window Systems 
 
 These components and their respective dotfiles are shared across all workstations.
 
-*** Compositor
+*** Compositor - Picom
 Compositing is the process of combining visual elements from separate sources into single images, i.e building the window image. Also provides shaders for drop shadows and other effects.
-**** *guix packages*
+
+**** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "picom"
 #+END_SRC
 
-**** *dotfiles*
-***** manifest
+**** Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "picom/picom.conf"
 #+END_SRC
 
+**** Files
 ***** picom/picom.conf
 #+NAME: home-services-xresources
 #+BEGIN_SRC conf :visiblity :tangle build/picom/picom.conf
@@ -288,11 +291,12 @@ vsync = false;
 unredir-if-possible = false;
 #+END_SRC
 
+
 *** Color Theme and Fonts
 
 I use my own theme throughout my terminal, emacs, and status bars.
 
-**** guix packages
+**** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "font-hack"
@@ -301,13 +305,14 @@ I use my own theme throughout my terminal, emacs, and status bars.
  "font-google-material-design-icons"
 #+END_SRC
 
-**** dotfiles
-***** manifest
+**** Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   ".Xresources"
 #+END_SRC
 
-***** Xresources
+**** Files
+***** .Xresources
 #+NAME: home-services-xresources
 #+BEGIN_SRC conf :visiblity :tangle build/.Xresources
 ! Color palette
@@ -377,18 +382,18 @@ Xft.hintstyle: hintslight
 Xft.lcdfilter: lcddefault
 #+END_SRC
 
-*** Status Bar
+
+*** Status Bar - Polybar
 
 I use polybar to provide a minimal amount of data in a status bar. Date, time, and a watch over CPU, RAM, and Network.
 
-**** guix packages
+**** Guix Packages
+
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
-
   "polybar"
-
 #+END_SRC
-**** dotfiles
-***** manifest
+
+**** Manifest
 
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "polybar/colors.ini"
@@ -397,6 +402,7 @@ I use polybar to provide a minimal amount of data in a status bar. Date, time, a
   "polybar/config.ini"
 #+END_SRC
 
+**** Files
 ***** polybar/colors.ini
 
 Color definitions for various modules. @todo: pull this from my global color definition.
@@ -1023,23 +1029,24 @@ compositing-border = over
 
 #+END_SRC
 
-*** File Manager
+
+*** File Manager - Thunar
 
 Thunar provides a rich user interface for file management. The dotfiles configure commands I run with contextual menus based on file type.
 
-**** guix packages
+**** Guix Packages
+
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
-
   "thunar"
-
 #+END_SRC
-**** dotfiles
-***** manifest
+
+**** Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
-
   "Thunar/uca.xml"
-
 #+END_SRC
+
+**** Files
 ***** Thunar/uca.xml
 #+BEGIN_SRC xml :visibility :tangle build/Thunar/uca.xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1092,23 +1099,25 @@ Thunar provides a rich user interface for file management. The dotfiles configur
 </action>
 </actions>
 #+END_SRC
-*** Notifications
+
+
+*** Notifications - Dunst
 
 Dunst gives us toast notifications. The dotfiles configure theme. @todo item for me is to remove the hardcoded colors in favor of common definition.
 
-**** guix packages
+**** Guix Packages
+
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
-
   "dunst"
-
 #+END_SRC
-**** dotfiles
-***** manifest
+
+**** Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
-
   "dunst/dunstrc"
-
 #+END_SRC
+
+**** Files
 ***** dunst/dunstrc
 
 #+BEGIN_SRC xml :visibility :tangle build/dunst/dunstrc
@@ -1181,23 +1190,26 @@ icon = 'Hangouts'
 icon_id = 'Hangouts'
 
 #+END_SRC
-** Printers
-*** Brother Laser
-We use a trusty Brother Laser DL-2170W Printer that I bought in high school (!). The thing is a beast. You can also purchase great high yield toners that go for 2500+ pages.
 
-**** guix packages
+
+** Printers
+*** Brother Laser DL-2170W
+We use a trusty Brother Laser DL-2170W printer that I bought in high school (!). The thing is a beast with 2500+ page high yield toners. 
+
+**** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "brlaser"
  "system-config-printer"
 #+END_SRC
 
-**** dotfiles
-***** manifest
+**** Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "printers/printers.conf"
 #+END_SRC
 
+**** Files
 ***** printers.conf
 #+NAME: home-services-printers
 #+BEGIN_SRC conf :tangle build/printers/printers.conf
@@ -1234,27 +1246,24 @@ Attribute marker-change-time 1633725056
 </Printer>
 #+END_SRC
 
-#+NAME: file-systems-boot-loader
-#+BEGIN_SRC scheme :tangle build/workstation.scm
 
-#+END_SRC
-
-** Terminals
+** Terminal - Alacritty
 *** Alacritty
-We chose Alacritty primarily because of it's blazing fast performance.
+We chose Alacritty primarily because of it's blazing fast performance and never looked back. It does everything we need.
 
-**** guix packages
+**** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "alacritty"
 #+END_SRC
 
-**** dotfiles
-***** manifest
+**** Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "alacritty/alacritty.yml"
 #+END_SRC
 
+**** Files
 ***** alacritty.yml
 #+NAME: home-services-alacritty
 #+BEGIN_SRC conf :visiblity :tangle build/alacritty/alacritty.yml
@@ -1313,6 +1322,7 @@ colors:
     white:   '0xd8dee9'
 #+END_SRC
 
+
 ** Editors
 Back then: vim golf
 Now: emacs os
@@ -1321,18 +1331,18 @@ Now: emacs os
 *** Emacs
 Most of my configuration is defined within Workstation-Emacs.org, however, in some cases where it makes sense we have supporting files here.
 
-**** guix packages
+**** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "emacs"
 #+END_SRC
 
-**** dotfiles
-***** manifest
+**** Manifest
+
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "emacs/zeroed-theme.el"
 #+END_SRC
-
+**** Files
 ***** zeroed-theme.el
 #+NAME: emacs-theme-files
 #+BEGIN_SRC elisp :tangle build/emacs/zeroed-theme.el
@@ -1397,9 +1407,10 @@ Most of my configuration is defined within Workstation-Emacs.org, however, in so
    (provide-theme 'zeroed)
 #+END_SRC
 
+
 * Export
 
-#+begin_src scheme :tangle build/dl/workstation.scm :noweb yes
+#+BEGIN_SRC scheme :tangle build/dl/workstation.scm :noweb yes
 (define-module (dl workstation)
   #:export (%dl-packages-workstation)
   #:export (%dl-dotfiles-workstation))
@@ -1413,5 +1424,5 @@ Most of my configuration is defined within Workstation-Emacs.org, however, in so
   (list
   <<dotfiles-manifest>>
 ))
-#+end_src
+#+END_SRC
 

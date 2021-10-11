@@ -1,9 +1,8 @@
-#+TITLE: Workstation - Emacs
-#+CONSTANTS: code_dir_path="~/Projects/Code"
+#+TITLE: Dustin Lyons' emacs configuration
 #+STARTUP: content
+#+CONSTANTS: code_dir_path="~/Projects/Code"
 
 * Configuration   :emacs:
-
 ** About this file
 This is my emacs config file. Yes, in emacs you can write configuration like a Google Doc and get away with it. It's called [[https://en.wikipedia.org/wiki/Literate_programming]["literate programming"]].
 
@@ -99,6 +98,12 @@ Hydra enables me drop into quick keybinding modes. See [[https://github.com/abo-
 (use-package hydra)
 #+END_SRC
 
+*** Buffers
+#+NAME: next-buffer
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "<C-tab>") 'next-buffer)
+#+END_SRC
+
 ** Display options
 *** Themes
 Some my own, some from others.
@@ -115,6 +120,8 @@ Sets some reasonable defaults.
 
 #+NAME: windows-reasonable-defaults
 #+BEGIN_SRC emacs-lisp 
+  ;; Maximize window on initialize
+  (add-hook 'window-setup-hook 'toggle-frame-maximized t)
   (setq use-dialog-box nil
       use-file-dialog nil
       cursor-type 'bar)
@@ -234,6 +241,8 @@ Define a global set of colors to be used everywhere in Emacs.
 
 **** Set mode margins
 This is used primarily to center org mode text.
+
+#+NAME: mode-margins
 #+BEGIN_SRC emacs-lisp 
 (defun dl/org-mode-visual-fill ()
   (setq visual-fill-column-width 110
@@ -367,7 +376,7 @@ If you haven't heard of org mode, go watch [[https://www.youtube.com/watch?v=SzA
                (window-height . fit-window-to-buffer)))
          (org-roam-db-autosync-mode)
        :custom
-         (org-roam-directory (file-truename "/state/dustin/Writing/roam/"))
+         (org-roam-directory (file-truename "~/Writing/roam/"))
          (org-roam-dailies-directory "daily/")
          (org-roam-completion-everywhere t)
        :bind
@@ -753,21 +762,6 @@ Projectile enables me organize projects with a killer grep interface.
 ** Managing files
 Configuration related to filesystem, either basic IO and interaction from emacs or directly moving files around where it makes sense.
 
-*** Code blocks
-org-tempo enables us to type ~<el~ [TAB]... and have an emacs-lisp block template (or other language) injected into the page.
-
-#+NAME: code-blocks
-#+BEGIN_SRC emacs-lisp
-  (require 'org-tempo)
-  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("sc" . "src scheme"))
-  (add-to-list 'org-structure-template-alist '("ts" . "src typescript"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python"))
-  (add-to-list 'org-structure-template-alist '("toml" . "src toml"))
-  (add-to-list 'org-structure-template-alist '("json" . "src json"))
-#+END_SRC
-
 *** Backups and auto-save
 These settings keep emacs from littering the filesystem with buffer backups. These files look like ~~yourfilename.txt~ or ~#yourfilename.txt#~ and would otherwise be dropped in your working directory.
 
@@ -830,8 +824,9 @@ File finder and associated helpers that uses the minibuffer (the info window at 
     (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
 #+END_SRC
 
-** Languages
-*** HTML
+** Coding
+*** Languages
+**** HTML
 Emmet mode gives autocompletion for HTML tags using short hand notations.
 #+NAME: html-auto-completion
 #+BEGIN_SRC emacs-lisp 
@@ -848,7 +843,7 @@ Rainbow mode is an Emacs minor mode to highlight the color shown by a RGB hex tr
   (use-package rainbow-mode)
 #+END_SRC
 
-*** Javascript
+**** Javascript
 #+NAME: javascript
 #+BEGIN_SRC emacs-lisp 
   (use-package lsp-mode
@@ -892,15 +887,15 @@ Rainbow mode is an Emacs minor mode to highlight the color shown by a RGB hex tr
   ;;(add-to-list 'lsp-language-id-configuration '(org-mode . "plaintext"))
 #+END_SRC
 
-** Git
+*** Git
 #+NAME: magit-git
 #+BEGIN_SRC emacs-lisp 
   (use-package magit
     :commands (magit-status magit-get-current-branch))
 #+END_SRC
 
-*** File types
-**** Markdown mode
+**** File types
+***** Markdown mode
 #+NAME: markdown-mode
 #+BEGIN_SRC emacs-lisp 
   ;; This uses Github Flavored Markdown for README files
@@ -909,8 +904,19 @@ Rainbow mode is an Emacs minor mode to highlight the color shown by a RGB hex tr
     :mode (("README\\.md\\'" . gfm-mode)
       ("\\.md\\'" . markdown-mode)
       ("\\.markdown\\'" . markdown-mode))
-    :init (setq markdown-command "multimarkdown"))
+    :init (setq markdown-command "pandoc"))
 #+END_SRC
+
+** Writing
+
+*** Update Table of Contents on Save
+
+I use =org-make-toc= to automatically update the Table of Contents in any header with a property named =TOC=.
+
+#+begin_src emacs-lisp
+  (use-package org-make-toc)
+  (add-hook 'org-mode-hook #'org-make-toc-mode)
+#+end_src
 
 ** Learning emacs
 These packages may come and go, but ultimately aid in my understanding of emacs and emacs lisp.

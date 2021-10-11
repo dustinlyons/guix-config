@@ -23,16 +23,16 @@
 - [[#x-window-system-components][X Window System Components]]
   - [[#window-manager][Window Manager]]
     - [[#openbox][Openbox]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#openboxautostart][openbox/autostart]]
         - [[#openboxrcxml][openbox/rc.xml]]
   - [[#launcher][Launcher]]
     - [[#rofi][Rofi]]
-      - [[#guix-packages][guix packages]]
-      - [[#dotfiles][dotfiles]]
-        - [[#manifest][manifest]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
         - [[#rofilaunchersh][rofi/launcher.sh]]
         - [[#rofithemerasi][rofi/theme.rasi]]
 - [[#export][Export]]
@@ -99,6 +99,7 @@ Kernel modules and associated configuration. We remove the community nvidia-driv
 #+END_SRC
 
 ** File Systems
+
 *** btrfs
 We use btrfs on all Workstations. btrfs is great for the following reasons:
 
@@ -157,6 +158,7 @@ We save most of the package loading for our independent machine definitions. How
 #+END_SRC
 
 *** Services
+
 **** Shepherd
 #+NAME: services-shepherd 
 #+BEGIN_SRC scheme :tangle build/desktop.scm
@@ -196,6 +198,7 @@ We save most of the package loading for our independent machine definitions. How
 		  %desktop-services)))))
 #+END_SRC
 
+
 * X Window System Components
 
 ** Window Manager
@@ -206,20 +209,18 @@ I use Openbox primarily on my Desktop, as I find window managers to be too restr
 
 Openbox is great on a big monitor, so it's primarily used on my Desktop. The dotfiles configure boot scripts and visual styles.
 
-**** guix packages
+**** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "openbox"
 #+END_SRC
 
-**** dotfiles
-***** manifest
+**** Manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
-
   "openbox/autostart"
   "openbox/rc.xml"
-
 #+END_SRC
+**** Files
 ***** openbox/autostart 
 autostart is a simple shell script that runs after Openbox initializes.
 #+BEGIN_SRC shell :visibility :tangle build/openbox/autostart
@@ -947,27 +948,25 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
 
 #+END_SRC
 
+
 ** Launcher
 
 *** Rofi
 
 Rofi is a quick launcher and how I primarily interface with applications in Openbox.
 
-**** guix packages
+**** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "rofi"
 #+END_SRC
 
-**** dotfiles
-***** manifest
+**** Manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
-
   "rofi/launcher.sh"
   "rofi/theme.rasi"
-
 #+END_SRC
-
+**** Files
 ***** rofi/launcher.sh
 
 Launches the display defined in theme.rasi.
