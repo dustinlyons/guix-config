@@ -200,7 +200,6 @@ We save most of the package loading for our independent machine definitions. How
 
 
 * X Window System Components
-
 ** Window Manager
 
 *** Openbox
@@ -948,7 +947,6 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
 
 #+END_SRC
 
-
 ** Launcher
 
 *** Rofi
@@ -1066,7 +1064,10 @@ element selected {
 }
 #+END_SRC
 
+
 * Export 
+
+We export the various dotfiles and package definitions described throughout this file. They are later appended to the global list and interpreted by the Guix Daemon.
 
 #+begin_src scheme :tangle build/dl/desktop.scm :noweb yes
 (define-module (dl desktop)
@@ -1074,14 +1075,10 @@ element selected {
   #:export (%dl-dotfiles-desktop))
 
 (define %dl-packages-desktop
-  (list
-  <<packages-manifest>>
-))
+  (list <<packages-manifest>>))
 
 (define %dl-dotfiles-desktop
-  (list
-  <<dotfiles-manifest>>
-))
+  (list <<dotfiles-manifest>>))
 #+end_src
 
 #+begin_src scheme :tangle build/dl/utils.scm :noweb yes

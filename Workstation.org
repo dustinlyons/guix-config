@@ -1410,19 +1410,17 @@ Most of my configuration is defined within Workstation-Emacs.org, however, in so
 
 * Export
 
+We export the various dotfiles and package definitions described throughout this file. They are later appended to lists defined by machines that inherit the Workstation definition.
+
 #+BEGIN_SRC scheme :tangle build/dl/workstation.scm :noweb yes
 (define-module (dl workstation)
   #:export (%dl-packages-workstation)
   #:export (%dl-dotfiles-workstation))
 
 (define %dl-packages-workstation
-  (list
-  <<packages-manifest>>
-))
+  (list <<packages-manifest>>))
 
 (define %dl-dotfiles-workstation
-  (list
-  <<dotfiles-manifest>>
-))
+  (list <<dotfiles-manifest>>))
 #+END_SRC
 

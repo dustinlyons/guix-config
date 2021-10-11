@@ -165,7 +165,6 @@ source $OSH/oh-my-bash.sh
 # ~~*~-~*~-~*~~*~-~*~-~*~~*~-~*~-~*~~*~-~*~-~*~**~~*~-~*~-~*~")))))
 #+END_SRC
 
-
 *** Dotfiles
 
 This function takes the various dotfiles manifests I have defined in my literate configuration and maps them to real files managed by guix home.
