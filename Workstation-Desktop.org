@@ -223,18 +223,9 @@ autostart is a simple shell script that runs after Openbox initializes.
 #+BEGIN_SRC shell :visibility :tangle build/openbox/autostart
 # This file generated from guix-config/Workstation-Desktop.org Makefile
 
-# Launch Polybar, our status bar
-DIR="$HOME/.config/polybar"
-
 # Set wallpaper
 # @todo: Fix this dependency, or at the very least activate it
 feh --no-fehbg --bg-scale $(shuf -n1 -e "$HOME/Resources/wallpaper/active/*")
-
-## Terminate already running bar instances
-killall -q polybar
-
-## Wait until the processes have been shut down
-while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 
 # Launch the bar
 polybar -q main -c "$HOME/.config/polybar/config.ini" &

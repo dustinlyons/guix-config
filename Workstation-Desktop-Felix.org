@@ -122,12 +122,12 @@ I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
 (simple-service 'felix-environment-variables
 		home-environment-variables-service-type
 		`(("LANG" . "en_US.UTF-8")
-		`("LIBGL_ALWAYS_INDIRECT" . #t)
-		`("HYPHEN_INSENSITIVE" . #t)
-		`("COMPLETION_WAITING_DOTS" . #t)
-		`("OSH" . "$HOME/Resources/code/oh-my-bash")
-		`("GUIX_PROFILE" . "$HOME/.guix-profile")
-		`("OSH_THEME" . "agnoster")))
+		("LIBGL_ALWAYS_INDIRECT" . #t)
+		("HYPHEN_INSENSITIVE" . #t)
+		("COMPLETION_WAITING_DOTS" . #t)
+		("OSH" . "$HOME/Resources/code/oh-my-bash")
+		("GUIX_PROFILE" . "$HOME/.guix-profile")
+		("OSH_THEME" . "agnoster")))
 
 (service home-bash-service-type
         (home-bash-configuration
@@ -135,6 +135,7 @@ I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
           (bashrc '("# Export 'SHELL' to child processes.  
 # Programs such as 'screen' honor it and otherwise use /bin/sh.
 export SHELL
+alias ls='ls --color'
     
 # We are being invoked from a non-interactive shell.  If this
 # is an SSH session (as in \"ssh host command\"), source
@@ -147,11 +148,12 @@ then
 return
 fi
 
-alias ls='ls --color'
-
+# System wide configuration
 source /etc/bashrc
-source \"$GUIX_PROFILE/etc/profile\"
-source $OSH/oh-my-bash.sh # oh-my-BASH!")))))
+
+# oh-my-BASH!
+export OSH=$HOME/Resources/code/oh-my-bash
+source $OSH/oh-my-bash.sh")))))
 #+END_SRC
 
 *** Dotfiles
