@@ -261,7 +261,6 @@ picom --xrender-sync-fence --backend xrender --config="$HOME/.config/picom/picom
 ****** openbox/rc.xml
 rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement, and display settings.
 #+BEGIN_SRC xml :visiblity folded :tangle build/openbox/rc.xml
-<!-- This file generated from guix-config/Workstation-Desktop.org Makefile -->
 <?xml version="1.0"?>
 <openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">
   <resistance>
