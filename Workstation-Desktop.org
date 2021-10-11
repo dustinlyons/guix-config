@@ -24,15 +24,15 @@
   - [[#window-manager][Window Manager]]
     - [[#openbox][Openbox]]
       - [[#guix-packages][Guix Packages]]
-      - [[#manifest][Manifest]]
-      - [[#files][Files]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
         - [[#openboxautostart][openbox/autostart]]
         - [[#openboxrcxml][openbox/rc.xml]]
   - [[#launcher][Launcher]]
     - [[#rofi][Rofi]]
       - [[#guix-packages][Guix Packages]]
-      - [[#manifest][Manifest]]
-      - [[#files][Files]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
         - [[#rofilaunchersh][rofi/launcher.sh]]
         - [[#rofithemerasi][rofi/theme.rasi]]
 - [[#export][Export]]
@@ -215,13 +215,13 @@ Openbox is great on a big monitor, so it's primarily used on my Desktop. The dot
  "openbox"
 #+END_SRC
 
-**** Manifest
+**** Dotfiles Manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "openbox/autostart"
   "openbox/rc.xml"
 #+END_SRC
-**** Files
-***** openbox/autostart 
+**** Dotfiles
+****** openbox/autostart 
 autostart is a simple shell script that runs after Openbox initializes.
 #+BEGIN_SRC shell :visibility :tangle build/openbox/autostart
 # This file generated from guix-config/Workstation-Desktop.org Makefile
@@ -261,7 +261,7 @@ xscreensaver -no-splash &
 picom --xrender-sync-fence --backend xrender --config="$HOME/.config/picom/picom.conf"
 #+END_SRC
 
-***** openbox/rc.xml
+****** openbox/rc.xml
 rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement, and display settings.
 #+BEGIN_SRC xml :visiblity folded :tangle build/openbox/rc.xml
 <!-- This file generated from guix-config/Workstation-Desktop.org Makefile -->
@@ -961,13 +961,13 @@ Rofi is a quick launcher and how I primarily interface with applications in Open
  "rofi"
 #+END_SRC
 
-**** Manifest
+**** Dotfiles Manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   "rofi/launcher.sh"
   "rofi/theme.rasi"
 #+END_SRC
-**** Files
-***** rofi/launcher.sh
+**** Dotfiles
+****** rofi/launcher.sh
 
 Launches the display defined in theme.rasi.
 
@@ -977,7 +977,7 @@ rofi -no-lazy-grab -show drun -theme theme.rasi
 
 #+END_SRC
 
-***** rofi/theme.rasi
+****** rofi/theme.rasi
 #+BEGIN_SRC conf :visibility :tangle build/rofi/theme.rasi
 configuration {
     drun-display-format: "{icon} {name}";

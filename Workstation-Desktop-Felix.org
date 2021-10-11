@@ -14,8 +14,8 @@
   - [[#packages][Packages]]
   - [[#services][Services]]
     - [[#keyboard][Keyboard]]
-      - [[#manifest][Manifest]]
-      - [[#files][Files]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
         - [[#xmodmap][.Xmodmap]]
     - [[#bash][Bash]]
     - [[#dotfiles][Dotfiles]]
@@ -100,11 +100,11 @@ This function takes the various dotfiles manifests I have defined in my literate
 
 Map CAPS LOCK to Control key.
 
-***** Manifest
+***** Dotfiles Manifest
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
   ".Xmodmap"
 #+END_SRC
-***** Files
+***** Dotfiles
 ****** .Xmodmap
 
 #+NAME: home-services-keyboard
@@ -114,8 +114,6 @@ clear control
 keycode 66 = Control_L
 add control = Control_L Control_R
 #+END_SRC
-
-
 
 *** Bash
 I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
