@@ -1,12 +1,14 @@
-#+TITLE: Dustin Lyons' emacs configuration
+#+TITLE: Workstation - Emacs
 #+STARTUP: content
 #+CONSTANTS: code_dir_path="~/Projects/Code"
 
 * Configuration   :emacs:
-** About this file
+** About Emacs
 This is my emacs config file. Yes, in emacs you can write configuration like a Google Doc and get away with it. It's called [[https://en.wikipedia.org/wiki/Literate_programming]["literate programming"]].
 
-** Personal information
+Emacs is more than an editor, it's a whole damn operating system. This file is evidence of that. This configuration drives how I interact with my journal, complete and organize tasks, develop and write blog posts, write code and ship new stuff, etc. etc. etc. list goes o. I've yet to jump into EXWM but if one is so inclined, Emacs can expand beyond an application into all software.
+
+** Personal Information
 Just me!
 
 #+NAME: personal-info
@@ -104,7 +106,7 @@ Hydra enables me drop into quick keybinding modes. See [[https://github.com/abo-
   (global-set-key (kbd "<C-tab>") 'next-buffer)
 #+END_SRC
 
-** Display options
+** Display Options
 *** Themes
 Some my own, some from others.
 
@@ -295,7 +297,7 @@ Various helpers and packages I find useful for window management.
     "rl"  '(rotate-layout :which-key "rotate layout"))
 
 #+END_SRC
-** Global setings and config
+** Global Settings and Config
 ***  Global modes
 I like these modes, what can I say.
 
@@ -355,12 +357,75 @@ If you haven't heard of org mode, go watch [[https://www.youtube.com/watch?v=SzA
     `(("@Home" . ,dl/green-color)
      ("@Car" . ,dl/purple-color)
      ("@Office" . ,dl/teal-color)
-     ("Inbox" . ,dl/blue-color)
-
-     ))
+     ("Inbox" . ,dl/blue-color)))
 #+END_SRC
 
-**** Install package
+**** Quick Snippets
+
+Simple snippets using leader keys. I'll convert to yas-snippets when this needs an upgrade.
+#+NAME::org-mode-quick-entry
+#+BEGIN_SRC emacs-lisp
+
+(defvar current-time-format "%H:%M:%S"
+  "Format of date to insert with `insert-current-time' func.
+Note the weekly scope of the command's precision.")
+
+(defun dl/insert-current-time ()
+  "insert the current time (1-week scope) into the current buffer."
+       (interactive)
+       (insert "* ")
+       (insert (format-time-string current-time-format (current-time)))
+       (insert "\n")
+       )
+
+(defun dl/insert-new-config ()
+  "insert the a new config block in my literate config."
+       (interactive)
+       (insert "*** New Config\n")
+       (insert "Description\n\n")
+       (insert "**** Guix Packages\n")
+       (insert "**** Dotfiles Manifest\n\n")
+       (insert "#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep \"\"\n")
+       (insert "\"\"\n")
+       (insert "#+END_SRC\n\n")
+       (insert "**** Dotfiles\n")
+       (insert "****** New File"))
+
+ (dl/leader-keys
+  "c"  '(dl/insert-new-config :which-key "new config")
+  ","  '(dl/insert-current-time :which-key "current time"))
+
+#+END_SRC
+
+***** Roam capture templates
+These are templates used to create new notes.
+
+#+NAME::roam-templates
+#+BEGIN_SRC emacs-lisp
+  (setq org-roam-capture-templates
+   '(("d" "default" plain
+      "%?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n\n")
+      :unnarrowed t)
+     ("a" "area" plain
+      "#+filetags: Area\n\n* Goals\n\n%^{Goals}\n\n* Tasks\n\n** TODO %?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+      :unnarrowed t)
+     ("j" "project" plain
+      "#+filetags: Project\n\n* Goals\n\n%^{Goals}\n\n* Tasks\n\n** TODO %?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+      :unnarrowed t)
+     ("p" "people" plain
+      "#+filetags: People CRM\n\n* Contacts\n\nRelationship: %^{Relationship}\nPhone:\nAddress:\nBirthday:\n\n* Notes\n\n %?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+      :unnarrowed t)
+     ("i" "institution" plain
+      "#+filetags: Institution CRM\n\n* Contacts\n\nRelationship: %^{Relationship}\nPhone:\nAddress:\n\n* Notes\n\n %?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
+      :unnarrowed t)))
+#+END_SRC
+**** Org Roam
+***** Install package
 #+NAME::org-roam-package
 #+BEGIN_SRC emacs-lisp
   (use-package org-roam
@@ -394,7 +459,7 @@ If you haven't heard of org mode, go watch [[https://www.youtube.com/watch?v=SzA
 
 #+END_SRC
 
-**** Configure templates
+***** Configure templates
 #+NAME::org-roam-templates
 #+BEGIN_SRC emacs-lisp
   (setq org-roam-dailies-capture-templates
@@ -404,10 +469,10 @@ If you haven't heard of org mode, go watch [[https://www.youtube.com/watch?v=SzA
                           "#+TITLE: %<%Y-%m-%d>\n#+filetags: Daily\n\n"))))
 #+END_SRC
 
-**** Extending Roam
+***** Extending Roam
 Here we add additional function to org-roam to either do something specific for more workflow, or otherwise make ~org-roam~ more full featured.
 
-***** Set CREATED and LAST_MODIFIED filetags on save
+****** Set CREATED and LAST_MODIFIED filetags on save
 Sets timestamps in the Properties drawer of files. I intend to use this one day when rendering these notes as HTML, to quickly see files last touched.
 
 #+NAME::org-roam-set-timestamps-on-save
@@ -460,64 +525,13 @@ Sets timestamps in the Properties drawer of files. I intend to use this one day 
       (dl/org-set-time-file-property "LAST_MODIFIED")))  
 #+END_SRC
 
-***** Set CREATED on node creation
+****** Set CREATED on node creation
 #+NAME::org-roam-set-timestamps-on-save
 #+BEGIN_SRC emacs-lisp
   (defun dl/org-roam-create-id ()
     (interactive)
     (org-id-get-create)
     (dl/org-set-created-property))
-#+END_SRC
-
-***** Quick log entry header
-I map a leader key to let me quickly enter a log entry in my daily note. I prefer a just typing into a simple buffer with timestamp headers over more granular templates.
-
-#+NAME::insert-timestamps
-#+BEGIN_SRC emacs-lisp
-
-(defvar current-time-format "%H:%M:%S"
-  "Format of date to insert with `insert-current-time' func.
-Note the weekly scope of the command's precision.")
-
-(defun insert-current-time ()
-  "insert the current time (1-week scope) into the current buffer."
-       (interactive)
-       (insert "* ")
-       (insert (format-time-string current-time-format (current-time)))
-       (insert "\n")
-       )
-
- (dl/leader-keys
-  ","  '(insert-current-time :which-key "current time"))
-
-#+END_SRC
-
-***** Roam capture templates
-These are templates used to create new notes.
-
-#+NAME::roam-templates
-#+BEGIN_SRC emacs-lisp
-  (setq org-roam-capture-templates
-   '(("d" "default" plain
-      "%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n\n")
-      :unnarrowed t)
-     ("a" "area" plain
-      "#+filetags: Area\n\n* Goals\n\n%^{Goals}\n\n* Tasks\n\n** TODO %?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
-      :unnarrowed t)
-     ("j" "project" plain
-      "#+filetags: Project\n\n* Goals\n\n%^{Goals}\n\n* Tasks\n\n** TODO %?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
-      :unnarrowed t)
-     ("p" "people" plain
-      "#+filetags: People CRM\n\n* Contacts\n\nRelationship: %^{Relationship}\nPhone:\nAddress:\nBirthday:\n\n* Notes\n\n %?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
-      :unnarrowed t)
-     ("i" "institution" plain
-      "#+filetags: Institution CRM\n\n* Contacts\n\nRelationship: %^{Relationship}\nPhone:\nAddress:\n\n* Notes\n\n %?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}")
-      :unnarrowed t)))
 #+END_SRC
 
 *** Agenda
@@ -735,7 +749,7 @@ This is what makes emacs possible for me. All evil mode packages and related con
 
 #+END_SRC
 
-** Managing projects
+** Managing Projects
 *** Projectile
 Projectile enables me organize projects with a killer grep interface.
 
@@ -759,7 +773,7 @@ Projectile enables me organize projects with a killer grep interface.
     :config (counsel-projectile-mode))
 #+END_SRC
 
-** Managing files
+** Managing Files
 Configuration related to filesystem, either basic IO and interaction from emacs or directly moving files around where it makes sense.
 
 *** Backups and auto-save
@@ -918,7 +932,7 @@ I use =org-make-toc= to automatically update the Table of Contents in any header
   (add-hook 'org-mode-hook #'org-make-toc-mode)
 #+end_src
 
-** Learning emacs
+** Learning Emacs
 These packages may come and go, but ultimately aid in my understanding of emacs and emacs lisp.
 
 *** Indent org-babel source blocks
