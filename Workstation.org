@@ -93,6 +93,7 @@ Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_n
               "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5")))))
 #+END_SRC
 
+
 * Operating System
 
   I build up my system configurations using [[https://orgmode.org/manual/Extracting-Source-Code.html][noweb]] style syntax. This enables us to write a base operating system available to be inherited by concrete system definitions (laptops, desktops, servers).
@@ -122,6 +123,7 @@ Define all dependencies we need to to build the base definition.
   #:use-module (gnu services desktop)
   #:use-module (gnu services ssh))
 #+END_SRC
+
 
 ** Keyboard and Mouse
 
@@ -155,6 +157,7 @@ Prepare some rules, config to be used in base operating system definition. This 
     MatchIsKeyboard \"on\"
   EndSection")
 #+end_src
+
 
 ** Operating System Definition
 
@@ -219,7 +222,6 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
                    (check? #f))
                  %base-file-systems))))
 #+END_SRC
-
 
 ** X Window Systems 
 
@@ -977,9 +979,9 @@ margin-top = 0
 
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
-include-file = ./bars.ini
-include-file = ./colors.ini
-include-file = ./modules.ini
+include-file = /home/dustin/.config/polybar/bars.ini
+include-file = /home/dustin/.config/polybar/colors.ini
+include-file = /home/dustin/.config/polybar/modules.ini
 
 ;; Bar Settings
 
