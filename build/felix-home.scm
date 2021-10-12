@@ -4,7 +4,6 @@
   #:use-module (dl utils)
   #:use-module (gnu home services)
   #:use-module (gnu home services shells)
-  #:use-module (gnu )
   #:use-module (gnu services)
   #:use-module (gnu system)
   #:use-module (gnu packages)
@@ -35,4 +34,4 @@
           (guix-defaults? #t)
           (bashrc (list
             (local-file "bash/bashrc.sh"))))))
-      (generate-dotfiles-services %dl-dotfiles))))
+      (generate-dotfiles-services (append '(".Xmodmap") %dl-dotfiles)))))
