@@ -117,7 +117,7 @@ keycode 66 = Control_L
 add control = Control_L Control_R
 #+END_SRC
 
-** Definition
+** Home Environment
 
 The function below takes the various dotfiles manifests I have defined in my literate configuration and maps them to real files managed by guix home.
 
