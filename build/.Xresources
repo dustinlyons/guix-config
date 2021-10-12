@@ -1,0 +1,65 @@
+! Color palette
+#define RED #EC5F67
+#define GREEN #99C794
+#define YELLOW #FAC863
+#define BLUE #6699CC
+#define PURPLE #C594C5
+#define TEAL #5FB3B3
+#define BLACK #1F2528
+#define LIGHT_GREY #C0C5CE
+#define DARK_GREY #65737E
+
+! Colors 0-15.
+*.color0: BLACK
+*color0:  BLACK
+*.color1: RED
+*color1:  RED
+*.color2: GREEN
+*color2:  GREEN
+*.color3: YELLOW
+*color3:  YELLOW
+*.color4: BLUE
+*color4:  BLUE
+*.color5: PURPLE
+*color5:  PURPLE
+*.color6: TEAL
+*color6:  TEAL
+*.color7: LIGHT_GREY
+*color7:  LIGHT_GREY
+*.color8: DARK_GREY
+*color8:  DARK_GREY
+*.color9: RED
+*color9:  RED
+*.color10: GREEN
+*color10:  GREEN
+*.color11: YELLOW
+*color11:  YELLOW
+*.color12: BLUE
+*color12:  BLUE
+*.color13: PURPLE
+*color13:  PURPLE
+*.color14: TEAL
+*color14:  TEAL
+*.color15: LIGHT_GREY
+*color15:  LIGHT_GREY
+
+! Black color that will not be affected by bold highlighting.
+*.color66: BLACK
+*color66:  BLACK
+
+! Xclock colors.
+XClock*foreground: LIGHT_GREY
+XClock*background: BLACK
+XClock*majorColor:  rgba:d8/de/e9/ff
+XClock*minorColor:  rgba:d8/de/e9/ff
+XClock*hourColor:   rgba:d8/de/e9/ff
+XClock*minuteColor: rgba:d8/de/e9/ff
+XClock*secondColor: rgba:d8/de/e9/ff
+
+Xft.dpi: 96
+Xft.antialias: true
+Xft.hinting: true
+Xft.rgba: rgb
+Xft.autohint: false
+Xft.hintstyle: hintslight
+Xft.lcdfilter: lcddefault

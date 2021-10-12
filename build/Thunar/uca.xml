@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Open Terminal Here</name>
+	<unique-id>1632887846683536-1</unique-id>
+	<command>alacritty --working-directory %f</command>
+	<description>Open an instance of Alacritty at file</description>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>preferences-desktop-wallpaper</icon>
+	<name>Set Wallpaper</name>
+	<unique-id>1632887846683536-2</unique-id>
+        <command>feh --no-fehbg --bg-scale %f</command>
+	<description>Set the wallpaper using feh</description>
+	<patterns>*</patterns>
+	<image-files/>
+</action>
+<action>
+	<icon>catfish</icon>
+	<name>Search</name>
+	<unique-id>1489089852658523-2</unique-id>
+	<command>catfish --path=$f$d</command>
+	<description>Open search dialog at path</description>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>final-term</icon>
+	<name>Extract Archive</name>
+	<unique-id>1489091300385082-4</unique-id>
+	<command>tar xjf %n</command>
+	<description></description>
+	<patterns>*.tar.bz2;*.tbz2;*.tar.gz</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>document-properties</icon>
+	<name>Unzip File</name>
+	<unique-id>1489091300385082-4</unique-id>
+	<command>unzip %n</command>
+	<description></description>
+	<patterns>*.zip</patterns>
+	<other-files/>
+</action>
+</actions>

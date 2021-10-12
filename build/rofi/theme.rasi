@@ -1,0 +1,85 @@
+configuration {
+    drun-display-format: "{icon} {name}";
+    display-drun: "run";
+	show-icons: true;
+	icon-theme: "Moka";
+	location: 0;
+	yoffset: 0;
+    xoffset: 0;
+	columns: 1;
+	fake-transparency: false;
+	hide-scrollbar: true;
+	bw: 0;
+    fullscreen: false;
+    show-icons: true;
+	terminal: "alacritty";
+	sidebar-mode: false;
+}
+
+* {
+    background:                     #1f2528;
+    background-alt:                 #414c51ff;
+    foreground:                     #A2A4A6cc;
+    border:                         #394F55ff;
+    border-alt:                     #88c0d0ff;
+    selected:                       #394F55;
+    urgent:                         #b48eadFF;
+}
+
+* {
+  text-font:                            "Arial";
+
+  inputbar-margin:                      3px 3px;
+  prompt-padding:                       5px 5px;
+  entry-padding:                        10px 0px 10px 0px;
+  list-element-padding:                 5px;
+  list-element-margin:                  @inputbar-margin;
+  list-element-border:                  0px 0px 0px 4px;
+
+  apps-textbox-prompt-colon-padding:    10px -5px 0px 0px;
+}
+
+* {
+  background-color: #1F2528;
+  border-color: #2e343f;
+  text-color: #C0C5CE;
+  spacing: 0;
+  width: 512px;
+}
+
+inputbar {
+  border: 0 0 1px 0;
+  children: [prompt,entry];
+}
+
+prompt {
+  padding: 16px;
+  border: 0 1px 0 0;
+}
+
+textbox {
+  background-color: #2e343f;
+  border: 0 0 1px 0;
+  border-color: #282C33;
+  padding: 8px 16px;
+}
+
+entry {
+  padding: 12px;
+}
+
+listview {
+  cycle: false;
+  margin: 0 0 -1px 0;
+  scrollbar: false;
+}
+
+element {
+  border: 0 0 1px 0;
+  padding: 12px;
+}
+
+element selected {
+  border: 1px 1px 1px 1px;
+  border-color: #FAC863;
+}
