@@ -78,6 +78,7 @@ export LIBGL_ALWAYS_INDIRECT=1
 export LANG=en_US.UTF-8
 export OSH="$HOME/.config/oh-my-bash"
 export OSH_THEME="agnoster"
+export PATH=$PATH:/home/dustin/bin
 alias ls='ls --color'
 
 # We are being invoked from a non-interactive shell.  If this
