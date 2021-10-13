@@ -69,6 +69,7 @@
 - [[#export][Export]]
 :END:
 
+
 * Channels
 
 Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_node/Channels.html#Channels][channels]]. As Guix strongly respects the [[https://www.gnu.org/distros/free-system-distribution-guidelines.html][freedom of computer users]], in order to download non-free software one must include non-free channels. I include one of these below (~nongnu)~, in addition to the default Guix channel definition.
@@ -97,6 +98,7 @@ Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_n
 * Operating System
 
   I build up my system configurations using [[https://orgmode.org/manual/Extracting-Source-Code.html][noweb]] style syntax. This enables us to write a base operating system available to be inherited by concrete system definitions (laptops, desktops, servers).
+
 
 ** Dependencies
 
@@ -222,6 +224,7 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
                    (check? #f))
                  %base-file-systems))))
 #+END_SRC
+
 
 ** X Window Systems 
 

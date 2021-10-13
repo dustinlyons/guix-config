@@ -220,7 +220,7 @@ Openbox is great on a big monitor, so it's primarily used on my Desktop. The dot
 **** Dotfiles
 ****** openbox/autostart 
 autostart is a simple shell script that runs after Openbox initializes.
-#+BEGIN_SRC shell :visibility :tangle build/openbox/autostart
+#+BEGIN_SRC shell :tangle build/openbox/autostart
 # This file generated from guix-config/System-Desktop.org Makefile
 
 # Set wallpaper
@@ -957,14 +957,14 @@ Rofi is a quick launcher and how I primarily interface with applications in Open
 
 Launches the display defined in theme.rasi.
 
-#+BEGIN_SRC shell :visibility :tangle build/rofi/launcher.sh
+#+BEGIN_SRC shell :tangle build/rofi/launcher.sh
 #!/usr/bin/env bash
 rofi -no-lazy-grab -show drun -theme theme.rasi
 
 #+END_SRC
 
 ****** rofi/theme.rasi
-#+BEGIN_SRC conf :visibility :tangle build/rofi/theme.rasi
+#+BEGIN_SRC conf :tangle build/rofi/theme.rasi
 configuration {
     drun-display-format: "{icon} {name}";
     display-drun: "run";
