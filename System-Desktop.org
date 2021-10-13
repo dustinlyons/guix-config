@@ -153,7 +153,7 @@ We save most of the package loading for our independent machine definitions. How
   ;; Install a base set of Desktop packages
   ;; @todo: Decide what to do with these packages
   (packages (append (map specification->package 
-		'("openbox" "htop" "git" "gnupg" "nss-certs" "vim" "emacs" "firefox" "xf86-input-libinput" "gvfs")) %base-packages))
+		'("openbox" "nss-certs" "xf86-input-libinput")) %base-packages))
 
 #+END_SRC
 
@@ -225,7 +225,7 @@ autostart is a simple shell script that runs after Openbox initializes.
 
 # Set wallpaper
 # @todo: Fix this dependency, or at the very least activate it
-feh --no-fehbg --bg-scale $(shuf -n1 -e "$HOME/Resources/wallpaper/active/*")
+feh --no-fehbg --bg-scale $(shuf -n1 -e "/data/dustin/Resources/Wallpaper/active/*")
 
 # Launch the bar
 polybar -q main -c "$HOME/.config/polybar/config.ini" &
@@ -465,21 +465,12 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
           <enabled>true</enabled>
           <name>polybar</name>
         </startupnotify>
-        <command>~/.config/polybar/launch.sh</command>
+        <command>launch-polybar</command>
       </action>
     </keybind>
     <keybind key="C-A-Delete">
       <action name="Execute">
         <command>xscreensaver-command -activate</command>
-      </action>
-    </keybind>
-    <keybind key="A-F1">
-      <action name="Execute">
-        <startupnotify>
-          <enabled>true</enabled>
-          <name>switchsink</name>
-        </startupnotify>
-        <command>~/bin/switchsink</command>
       </action>
     </keybind>
     <keybind key="W-space">
@@ -506,7 +497,7 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
           <enabled>false</enabled>
           <name>alacritty</name>
         </startupnotify>
-        <command>alacritty --working-directory /home/dustin</command>
+        <command>alacritty --working-directory /data/dustin</command>
       </action>
     </keybind>
     <keybind key="W-f">
@@ -538,7 +529,7 @@ rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement,
     </keybind>
     <keybind key="Print">
       <action name="Execute">
-        <command>scrot -q 100 'Screenshot_%Y-%m-%d-%S_$wx$h.png' -e 'notify-send " Capture Screenshot! &#xE928; " ; mv $f /home/dustin/Inbox/screenshots ; feh /home/dustin/Inbox/screenshots/$f'</command>
+        <command>scrot -q 100 'Screenshot_%Y-%m-%d-%S_$wx$h.png' -e 'notify-send " Capture Screenshot! &#xE928; " ; mv $f /data/dustin/Inbox/Screenshots ; feh /data/dustin/Inbox/Screenshots/$f'</command>
       </action>
     </keybind>
     <keybind key="A-Print">

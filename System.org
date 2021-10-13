@@ -69,7 +69,6 @@
 - [[#export][Export]]
 :END:
 
-
 * Channels
 
 Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_node/Channels.html#Channels][channels]]. As Guix strongly respects the [[https://www.gnu.org/distros/free-system-distribution-guidelines.html][freedom of computer users]], in order to download non-free software one must include non-free channels. I include one of these below (~nongnu)~, in addition to the default Guix channel definition.
@@ -1051,6 +1050,7 @@ Thunar provides a rich user interface for file management. The dotfiles configur
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
   "thunar"
+  "tumbler"
 #+END_SRC
 
 **** Dotfiles Manifest
@@ -1122,6 +1122,7 @@ Dunst gives us toast notifications. The dotfiles configure theme. @todo item for
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
   "dunst"
+  "libnotify"
 #+END_SRC
 
 **** Dotfiles Manifest
@@ -1214,6 +1215,7 @@ We use a trusty Brother Laser DL-2170W printer that I bought in high school (!).
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
  "brlaser"
  "system-config-printer"
+ "cups"
 #+END_SRC
 
 **** Dotfiles Manifest

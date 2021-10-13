@@ -1,6 +1,6 @@
 #+TITLE: Emacs
 #+STARTUP: content
-#+CONSTANTS: code_dir_path="~/Projects/Code"
+#+CONSTANTS: code_dir_path="/data/dustin/Projects/Code"
 
 * Configuration   :emacs:
 ** About Emacs
@@ -441,7 +441,7 @@ These are templates used to create new notes.
                (window-height . fit-window-to-buffer)))
          (org-roam-db-autosync-mode)
        :custom
-         (org-roam-directory (file-truename "~/Writing/roam/"))
+         (org-roam-directory (file-truename "~/Notebook"))
          (org-roam-dailies-directory "daily/")
          (org-roam-completion-everywhere t)
        :bind
