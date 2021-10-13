@@ -38,15 +38,15 @@ $ make install
 ## Files and Organization
 I use inheritance to share configuration amgonst my machines where it makes sense. This is subject to change as I make progress, acquire new machines, setup new VMS, etc.
 
-### Workstation.org
+### System.org
 ###### Base File
 Base definition of machines I'll work on day-to-day. Includes core system functions like the kernel, libinput, X Window System, etc. This is to seperate configuration concerns from machines I have running in my home-lab.
 
-### Workstation-Desktop.org
-###### Inherits from `Workstation`
+### System-Desktop.org
+###### Inherits from `System`
 Sensible definitions for my Desktop machine that are likely to never change. Includes Openbox configuration, users and filesystems for Desktops, more dotfiles and package configuration.
 
-### Workstation-Desktop-Felix.org
+### System-Desktop-Felix.org
 ###### Inherits from `Desktop`
 Felix is my Desktop computer sitting in my office at home. This is a work in progress. I'm working on using guix-home to build out a new home directory on each system configuration, setup environment variables, sym-links, etc.
 

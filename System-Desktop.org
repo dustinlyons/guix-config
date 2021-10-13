@@ -1,4 +1,4 @@
-#+TITLE: Workstation - Desktop
+#+TITLE: System - Desktop Definition
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
@@ -42,7 +42,7 @@
 
 This base definition outlines reasonable choices for using Linux as a Desktop environment in 2021. This is not likely to change anytime soon; I leave more user specific configuration up to implementations of this.
 
-Note we inherit this definition from the base [[#Workstation][Workstation]] definition.
+Note we inherit this definition from the base [[#System][System]] definition.
 
 ** Dependencies
 Define all dependencies we need to to build the base definition.
@@ -101,7 +101,7 @@ Kernel modules and associated configuration. We remove the community nvidia-driv
 ** File Systems
 
 *** btrfs
-We use btrfs on all Workstations. btrfs is great for the following reasons:
+We use btrfs on all Systems. btrfs is great for the following reasons:
 
 - Copy on Write: Although each workstation has their own Home directory and associated dotfiles, I share my user state across machines. CoW supports shipping data back to my home-lab hypervisor.
 
@@ -221,7 +221,7 @@ Openbox is great on a big monitor, so it's primarily used on my Desktop. The dot
 ****** openbox/autostart 
 autostart is a simple shell script that runs after Openbox initializes.
 #+BEGIN_SRC shell :visibility :tangle build/openbox/autostart
-# This file generated from guix-config/Workstation-Desktop.org Makefile
+# This file generated from guix-config/System-Desktop.org Makefile
 
 # Set wallpaper
 # @todo: Fix this dependency, or at the very least activate it

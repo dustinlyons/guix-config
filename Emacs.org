@@ -1,4 +1,4 @@
-#+TITLE: Workstation - Emacs
+#+TITLE: Emacs
 #+STARTUP: content
 #+CONSTANTS: code_dir_path="~/Projects/Code"
 

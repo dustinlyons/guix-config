@@ -4,16 +4,16 @@
 SHELL = /bin/sh
 
 --config-felix: --config-desktop
-	@echo "Building Workstation - Desktop - Felix..."
-	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop-Felix.org")'
+	@echo "Building System - Desktop - Felix..."
+	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "System-Desktop-Felix.org")'
 
 --config-desktop: --config-workstation
-	@echo "Building Workstation - Desktop..."
-	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop.org")'
+	@echo "Building System - Desktop..."
+	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "System-Desktop.org")'
 
 --config-workstation:
-	@echo "Building Workstation..."
-	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation.org")'
+	@echo "Building System..."
+	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "System.org")'
 
 --install-felix:
 	@echo "Installing new guix system generation..."
