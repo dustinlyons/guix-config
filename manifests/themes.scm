@@ -1,4 +1,4 @@
-;; Related to programming
+;; Related to theming my OS
 (specifications->manifest
  '(
    "lxappearance"
