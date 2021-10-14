@@ -96,7 +96,7 @@ chmod +x ~/bin/activate-profiles
 chmod +x ~/bin/update-profiles
 #+END_SRC
 
-**** Scripwts
+**** Scripts
 ***** activate-profiles
 
 #+NAME: activate-profiles-script
