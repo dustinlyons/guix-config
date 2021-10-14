@@ -2,6 +2,7 @@
 (specifications->manifest
  '(
    "jq"
+   "curl"
    "tree"
    "neofetch"
    "htop"
