@@ -5,12 +5,16 @@
 
 ## What is this?
 #### _tl;dr The "functional programming" equivalent of operating systems_
-The configuration of my operating system, Guix Linux, and day-to-day software (who are we kidding, emacs) defined in literate configuration style. The .org files represent the code itself. Makefile is used to [tangle](https://orgmode.org/worg/org-contrib/babel/intro.html) the code into seperate files of which are primarily Scheme. Finally, the Guix daemon interprets the files to generate everything from my desktop and laptop, to servers running in a rack or VMs inside of a hypervisor. _(coming soon)_
+The configuration of my operating system, Guix Linux, and day-to-day software (who are we kidding, emacs) defined in literate configuration style. 
 
-No more traditional dotfiles. Hello Scheme and literate config.
+1. The .org files represent the code itself. 
+2. Makefile is used to [tangle](https://orgmode.org/worg/org-contrib/babel/intro.html) the code into seperate files of which are primarily Scheme, ELisp, and shell scripts.
+3. Finally, the Guix daemon interprets these files to generate everything from my desktop and laptop, to servers running in a rack or VMs inside of a hypervisor. _(coming soon)_
+
+No more traditional dotfiles. Hello Scheme and literate configuration.
 
 ## Why?
-With everything defined in this way I can treat my system as one program. It's 100% reproducible.
+With everything defined in this way I can treat my system as one program. It's 100% reproducible, bit by bit.
 
 Every change to my system is now deployed from the [Guix Store](https://guix.gnu.org/manual/en/html_node/The-Store.html) thanks to [Guix Home](https://guix.gnu.org/manual/devel/en/html_node/Home-Configuration.html). This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness with even my dotfiles.
 
