@@ -11,6 +11,7 @@
 - [[#channels][Channels]]
 - [[#operating-system][Operating System]]
   - [[#dependencies][Dependencies]]
+    - [[#activate][Activate]]
   - [[#keyboard-and-mouse][Keyboard and Mouse]]
     - [[#libinput][libinput]]
   - [[#operating-system-definition][Operating System Definition]]
@@ -49,6 +50,7 @@
         - [[#dunstdunstrc][dunst/dunstrc]]
   - [[#printers][Printers]]
     - [[#brother-laser-dl-2170w][Brother Laser DL-2170W]]
+      - [[#initialize][Initialize]]
       - [[#guix-packages][Guix Packages]]
       - [[#dotfiles-manifest][Dotfiles Manifest]]
       - [[#dotfiles][Dotfiles]]
@@ -61,11 +63,20 @@
         - [[#alacrittyyml][alacritty.yml]]
   - [[#editors][Editors]]
     - [[#vim][Vim]]
-    - [[#emacs][Emacs]]
+      - [[#initialize][Initialize]]
+      - [[#activate][Activate]]
       - [[#guix-packages][Guix Packages]]
       - [[#dotfiles-manifest][Dotfiles Manifest]]
       - [[#dotfiles][Dotfiles]]
-        - [[#zeroed-themeel][zeroed-theme.el]]
+        - [[#colorsthemevim][colors/theme.vim]]
+        - [[#vimrc][.vimrc]]
+    - [[#emacs][Emacs]]
+      - [[#activate][Activate]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#emacsconfigorg][emacs/config.org]]
+        - [[#emacszeroed-themeel][emacs/zeroed-theme.el]]
 - [[#export][Export]]
 :END:
 
@@ -122,6 +133,15 @@ Define all dependencies we need to to build the base definition.
   #:use-module (gnu services desktop)
   #:use-module (gnu services ssh))
 #+END_SRC
+
+**** Activate
+
+Initialize our bash script that runs as part of each generation activation.
+#+BEGIN_SRC sh :tangle build/scripts/activate-home.sh
+GREEN_TERMINAL_OUTPUT='\033[1;32m'
+CLEAR='\033[0m'
+#+END_SRC
+
 
 ** Keyboard and Mouse
 
@@ -1200,6 +1220,17 @@ icon_id = 'Hangouts'
 *** Brother Laser DL-2170W
 We use a trusty Brother Laser DL-2170W printer that I bought in high school (!). The thing is a beast with 2500+ page high yield toners. 
 
+**** Initialize
+
+This runs after brlaser is installed for the first time.
+
+#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+
+# Link configuration and theme at final location
+sudo -E ln -fs ~/.config/printers/printers.conf /etc/cups/printers.conf
+
+#+END_SRC
+
 **** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
@@ -1335,6 +1366,8 @@ These snippets get tangled into files that run as part of Makefile targets. Init
 
 **** Initialize 
 
+This runs after vim is installed for the first time.
+
 #+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
 
 # Download our Vim plugin manager of choice, Plug.vim
@@ -1345,11 +1378,16 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 **** Activate
 
+This runs after vim is installed.
+
 #+BEGIN_SRC sh :tangle build/scripts/activate-home.sh
 
-# Link configuration and theme at final location
-ln -fs ~/.config/vim/colors/theme.vim ~/.vim/colors/theme.vim
-ln -fs ~/.config/vim/.vimrc ~/.vimrc
+# Move configuration and theme at final location
+mv ~/.config/vim/colors/theme.vim ~/.vim/colors/theme.vim && \
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Vim] Linking theme.vim...${CLEAR}"
+
+mv ~/.config/vim/.vimrc ~/.vimrc && \
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Vim] Linking .vimrc...${CLEAR}"
 
 #+END_SRC
 
@@ -1367,7 +1405,7 @@ ln -fs ~/.config/vim/.vimrc ~/.vimrc
 #+END_SRC
 
 **** Dotfiles
-***** colors/theme.vim
+****** colors/theme.vim
 
 #+NAME: home-services-vim-colors
 #+BEGIN_SRC conf :tangle build/vim/colors/theme.vim
@@ -1646,7 +1684,7 @@ command! LuciusDark let g:lucius_style = "dark" | colorscheme lucius
 command! LuciusDarkDim let g:lucius_style = "dark_dim" | colorscheme lucius
 #+END_SRC
 
-***** .vimrc
+****** .vimrc
 
 #+NAME: home-services-vim-colors
 #+BEGIN_SRC conf :tangle build/vim/.vimrc
@@ -1783,23 +1821,49 @@ Plug 'christoomey/vim-tmux-navigator'
 call plug#end()
 #+END_SRC
 
-
 *** Emacs
-kost of my configuration is defined within Emacs.org, however, in some cases where it makes sense we have supporting files here.
+Load our literate configuration file, Emacs.org, into the Guix Store and link to final location in ~/.emacs.d. By leveraging the Guix Store we can easily roll-back and manage Emacs config generations via Guix.
+
+Note Guix has great support for Emacs packaging; @todo: Convert Emacs packages over to use Guix.
+
+**** Activate
+
+This runs after emacs is installed.
+
+#+BEGIN_SRC sh :tangle build/scripts/activate-home.sh
+
+# move configuration and theme from Guix Store to final location
+mv ~/.config/emacs/config.org ~/.emacs.d/config.org && \
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking config.org...${CLEAR}"
+
+mv ~/.config/emacs/zeroed-theme.el ~/.emacs.d/zeroed-theme.el && \
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking zeroed-theme.el...${CLEAR}"
+
+# Basic .el config that tangles Org file into Emacs Lisp
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Writing org-babel file loader...${CLEAR}"
+cat <<EOF > ~/.emacs
+(package-initialize)
+(require 'org-install)
+(file-truename (org-babel-load-file "~/.emacs.d/config.org"))
+EOF
+#+END_SRC
 
 **** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
-;; "emacs" ;; defined in emacs manifest
+ "emacs"
 #+END_SRC
 
 **** Dotfiles Manifest
 
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  "emacs/config.org"
   "emacs/zeroed-theme.el"
 #+END_SRC
 **** Dotfiles
-****** zeroed-theme.el
+****** emacs/config.org
+This file is brought in as part of Makefile target --config-emacs.
+****** emacs/zeroed-theme.el
 #+NAME: emacs-theme-files
 #+BEGIN_SRC elisp :tangle build/emacs/zeroed-theme.el
 (require 'autothemer)
@@ -1862,6 +1926,7 @@ kost of my configuration is defined within Emacs.org, however, in some cases whe
                                    ,zeroed-cyan])))
    (provide-theme 'zeroed)
 #+END_SRC
+
 
 * Export
 

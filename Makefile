@@ -3,7 +3,7 @@
 
 SHELL = /bin/sh
 GREEN_TERMINAL_OUTPUT = \033[1;32m
-RED_TERMINAL_OUTPU = \033[1;30m
+RED_TERMINAL_OUTPUT = \033[1;31m
 CLEAR = \033[0m
 
 --config-felix: --config-desktop
@@ -14,15 +14,15 @@ CLEAR = \033[0m
 	@echo "Building System - Desktop..."
 	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "System-Desktop.org")'
 
---config-workstation:
+--config-workstation: --config-emacs
 	@echo "Building System..."
 	@emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "System.org")'
 
 .ONESHELL:
---initialize-felix:
+--config-emacs:
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}Initializing Guix System...${CLEAR}"
-		./build/scripts/initialize-home.sh && echo -e "${GREEN_TERMINAL_OUTPUT}Finished initializing Guix System.${CLEAR}"
+		cp Emacs.org ./build/emacs/config.org && echo -e "${GREEN_TERMINAL_OUTPUT}--> Copied Emacs.org in preparation for Guix Home daemon...${CLEAR}"
+	}
 
 .ONESHELL:
 --install-felix:
@@ -31,8 +31,9 @@ CLEAR = \033[0m
 		if sudo -E guix system --load-path=./build reconfigure ./build/felix-os.scm; then
 			./build/scripts/activate-system.sh && echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished installing new Guix System.${CLEAR}"
 		else
-			echo -e "${RED_TERMINAL_OUTPUT}Failed to install Guix System generation.${CLEAR}"
+			echo -e "${RED_TERMINAL_OUTPUT}x Failed to install Guix System generation.${CLEAR}"
 		fi
+	}
 
 .ONESHELL:
 --install-felix-slow:
@@ -41,8 +42,9 @@ CLEAR = \033[0m
 		if sudo -E guix system --cores=12 --dry-run --load-path=./build reconfigure ./build/felix-os.scm; then
 			./build/scripts/activate-system.sh && echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished installing new Guix System.${CLEAR}"
 		else
-			echo -e "${RED_TERMINAL_OUTPUT}Failed to install Guix System generation.${CLEAR}"
+			echo -e "${RED_TERMINAL_OUTPUT}x Failed to install Guix System generation.${CLEAR}"
 		fi
+	}
 
 .ONESHELL:
 --install-felix-dry-run:
@@ -51,7 +53,7 @@ CLEAR = \033[0m
 		if sudo -E guix system --cores=12 --dry-run --load-path=./build reconfigure ./build/felix-os.scm; then
 			echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished installing new Guix System.${CLEAR}"
 		else
-			echo -e "${RED_TERMINAL_OUTPUT}Failed to install Guix System generation.${CLEAR}"
+			echo -e "${RED_TERMINAL_OUTPUT}x Failed to install Guix System generation.${CLEAR}"
 		fi
 	}
 
@@ -62,7 +64,7 @@ CLEAR = \033[0m
 		if guix home --load-path=./build reconfigure ./build/felix-home.scm;  then
 			./build/scripts/activate-home.sh && echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished installing new Guix Home.${CLEAR}"
 		else
-			echo -e "${RED_TERMINAL_OUTPUT}Failed to install Guix Home generation.${CLEAR}"
+			echo -e "${RED_TERMINAL_OUTPUT}x Failed to install Guix Home generation.${CLEAR}"
 		fi
 	}
 
@@ -73,8 +75,16 @@ CLEAR = \033[0m
 		if guix home --dry-run --load-path=./build reconfigure ./build/felix-home.scm; then
 			echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished installing new Guix Home.${CLEAR}"
 		else
-			echo -e "${RED_TERMINAL_OUTPUT}Failed to install Guix Home generation.${CLEAR}"
+			echo -e "${RED_TERMINAL_OUTPUT}x Failed to install Guix Home generation.${CLEAR}"
 		fi
+	}
+
+.ONESHELL:
+initialize:
+	@{ \
+		echo -e "${GREEN_TERMINAL_OUTPUT}Initializing Guix System...${CLEAR}"
+		./build/scripts/initialize-home.sh && \
+			echo -e "${GREEN_TERMINAL_OUTPUT}Finished initializing Guix System.${CLEAR}"
 	}
 
 clean: 
