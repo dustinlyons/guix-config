@@ -25,6 +25,7 @@
 - [[#x-window-system-components][X Window System Components]]
   - [[#window-manager][Window Manager]]
     - [[#openbox][Openbox]]
+      - [[#initialize][Initialize]]
       - [[#guix-packages][Guix Packages]]
       - [[#dotfiles-manifest][Dotfiles Manifest]]
       - [[#dotfiles][Dotfiles]]
@@ -229,6 +230,17 @@ We save most of the package loading for our independent machine definitions. How
 I use Openbox primarily on my Desktop, as I find window managers to be too restrictive to free thought. I'm all for winning at vim golf but the mouse does have a place for a little bit of meandering. I meander on my Desktop.
 
 Openbox is great on a big monitor, so it's primarily used on my Desktop. The dotfiles configure boot scripts and visual styles.
+
+**** Initialize 
+
+This runs after openbox is installed for the first time.
+
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] Downloading openbox theme...${CLEAR}"
+git clone git@github.com:Dovias/Kaunas.git ~/.themes/Kaunas && \
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] Download successful.${CLEAR}"
+
+#+END_SRC
 
 **** Guix Packages
 

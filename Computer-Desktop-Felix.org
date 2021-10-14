@@ -107,7 +107,7 @@ This runs after bash is installed for the first time. I use Oh-My-Bash! for term
 # Clone Oh-My-Bash! for the themes
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Bash] Downloading oh-my-bash...${CLEAR}"
 git clone https://github.com/ohmybash/oh-my-bash.git ~/.config/oh-my-bash && \
-    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Bash] Download complete.${CLEAR}"
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Bash] Download successful.${CLEAR}"
 
 #+END_SRC
 

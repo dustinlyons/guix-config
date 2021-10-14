@@ -171,7 +171,7 @@ CLEAR='\033[0m'
 
 I define small groups of packages in manifest files that enable me to build up to a larger package list of software to install. These helper scripts turn on and or update individual manifests (profiles) without forcing me to update everything. Thanks to David Wilson for these.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # Create bin if it doesn't already exist
 mkdir -p ~/bin
 
@@ -180,6 +180,7 @@ mv build/scripts/activate-profiles ~/bin/activate-profiles
 mv build/scripts/update-profiles ~/bin/update-profiles
 chmod +x ~/bin/activate-profiles
 chmod +x ~/bin/update-profiles
+
 #+END_SRC
 
 **** Scripts
@@ -1336,11 +1337,11 @@ We use a trusty Brother Laser DL-2170W printer that I bought in high school (!).
 
 This runs after brlaser is installed for the first time.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh
-
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # Link configuration and theme at final location
-sudo -E ln -fs ~/.config/printers/printers.conf /etc/cups/printers.conf && \
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linking printers.conf...${CLEAR}"
+sudo -E ln -fs ~/.config/printers/printers.conf /etc/cups/printers.conf && \
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linked printers.conf.${CLEAR}"
 
 #+END_SRC
 
@@ -1479,7 +1480,6 @@ We chose sensible git defaults and initialize our home directory.
 Link the .gitconfig file defined below.
 
 #+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
-
 # Link configuration and theme from Guix Store to final location
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Git] Linking .gitconfig...${CLEAR}"
 ln -fs ~/.config/git/.gitconfig ~/.gitconfig && \
@@ -1527,8 +1527,7 @@ These snippets get tangled into files that run as part of Makefile targets. Init
 
 This runs after vim is installed for the first time.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh
-
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # Download our Vim plugin manager of choice, Plug.vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
