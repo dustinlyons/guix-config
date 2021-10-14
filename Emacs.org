@@ -840,6 +840,23 @@ File finder and associated helpers that uses the minibuffer (the info window at 
 #+END_SRC
 
 ** Coding
+*** Compile Buffers
+
+Everything related to M-x compile.
+
+#+NAME: compilation-buffer
+#+BEGIN_SRC emacs-lisp 
+;; Auto scroll the buffer as we compile
+(setq compilation-scroll-output t)
+
+;; By default, eshell doesn't support ANSI colors. Enable them for compilation.
+(require 'ansi-color)
+(defun colorize-compilation-buffer ()
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+#+END_SRC
+
 *** Languages
 **** HTML
 Emmet mode gives autocompletion for HTML tags using short hand notations.

@@ -1,4 +1,4 @@
-#+TITLE: System - Base Definition
+#+TITLE: Computer Definition
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
@@ -8,7 +8,88 @@
 :PROPERTIES:
 :TOC: :include all :ignore this :depth 5
 :CONTENTS:
-
+- [[#channels][Channels]]
+- [[#operating-system][Operating System]]
+  - [[#dependencies][Dependencies]]
+    - [[#initialize][Initialize]]
+    - [[#activate][Activate]]
+  - [[#helpers][Helpers]]
+    - [[#scripts][Scripts]]
+      - [[#activate-profiles][activate-profiles]]
+      - [[#update-profiles][update-profiles]]
+  - [[#keyboard-and-mouse][Keyboard and Mouse]]
+    - [[#libinput][libinput]]
+  - [[#operating-system-definition][Operating System Definition]]
+    - [[#kernel][Kernel]]
+    - [[#file-systems][File Systems]]
+      - [[#boot-loader][Boot Loader]]
+      - [[#empty-stub][Empty Stub]]
+  - [[#x-window-systems][X Window Systems]]
+    - [[#compositor---picom][Compositor - Picom]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#manifest][Manifest]]
+      - [[#files][Files]]
+        - [[#picompicomconf][picom/picom.conf]]
+    - [[#color-theme-and-fonts][Color Theme and Fonts]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#xresources][.Xresources]]
+    - [[#status-bar---polybar][Status Bar - Polybar]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#polybarcolorsini][polybar/colors.ini]]
+        - [[#polybarbarsini][polybar/bars.ini]]
+        - [[#polybarmodulesini][polybar/modules.ini]]
+        - [[#polybarconfigini][polybar/config.ini]]
+    - [[#file-manager---thunar][File Manager - Thunar]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#thunarucaxml][Thunar/uca.xml]]
+    - [[#notifications---dunst][Notifications - Dunst]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#dunstdunstrc][dunst/dunstrc]]
+  - [[#printers][Printers]]
+    - [[#brother-dl-2170w][Brother DL-2170W]]
+      - [[#initialize][Initialize]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#printersconf][printers.conf]]
+  - [[#terminal][Terminal]]
+    - [[#alacritty][Alacritty]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#alacrittyyml][alacritty.yml]]
+  - [[#git][Git]]
+    - [[#config][Config]]
+      - [[#initialize][Initialize]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#gitconfig][.gitconfig]]
+  - [[#editors][Editors]]
+    - [[#vim][Vim]]
+      - [[#initialize][Initialize]]
+      - [[#activate][Activate]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#colorsthemevim][colors/theme.vim]]
+        - [[#vimrc][.vimrc]]
+    - [[#emacs][Emacs]]
+      - [[#activate][Activate]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#emacsconfigorg][emacs/config.org]]
+        - [[#emacszeroed-themeel][emacs/zeroed-theme.el]]
+- [[#export][Export]]
 :END:
 
 * Channels
@@ -44,8 +125,8 @@ Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_n
 Define all dependencies we need to to build the base definition.
    
 #+NAME: base-definition 
-#+BEGIN_SRC scheme :tangle build/workstation.scm
-(define-module (workstation)
+#+BEGIN_SRC scheme :tangle build/computer.scm
+(define-module (computer)
   #:use-module (gnu)
   #:use-module (guix)
   #:use-module (gnu packages)
@@ -69,27 +150,32 @@ Define all dependencies we need to to build the base definition.
 
 Initialize our bash script that runs as part of each first install.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
-# This script created from System.org
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
+# This script created from Computer.org
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
+
 #+END_SRC
 
 **** Activate
 
 Initialize our bash script that runs as part of each generation activation.
 
-#+BEGIN_SRC sh :tangle build/scripts/activate-home.sh
+#+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
+
 #+END_SRC
 
 ** Helpers
 
 I define small groups of packages in manifest files that enable me to build up to a larger package list of software to install. These helper scripts turn on and or update individual manifests (profiles) without forcing me to update everything. Thanks to David Wilson for these.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh
+# Create bin if it doesn't already exist
 mkdir -p ~/bin
+
+# activate-profiles and update-profiles, scripts for Guix profiles
 mv build/scripts/activate-profiles ~/bin/activate-profiles
 mv build/scripts/update-profiles ~/bin/update-profiles
 chmod +x ~/bin/activate-profiles
@@ -176,7 +262,7 @@ Prepare some rules, config to be used in base operating system definition. This 
  Use =libinput= driver for all input devices as it provides more optionality.
 
 #+NAME: base-definition-config
-#+BEGIN_SRC scheme :tangle build/workstation.scm
+#+BEGIN_SRC scheme :tangle build/computer.scm
 ;; @todo: Move this to where it is used in slim-service-type
 (define %xorg-libinput-config
   "Section \"InputClass\"
@@ -202,19 +288,19 @@ Prepare some rules, config to be used in base operating system definition. This 
 
 ** Operating System Definition
 
-Now that we've prepped module definitions and labeled values to be used in our base operating system, let's define it. All systems inherit from this defintion, both servers and workstations.
+Now that we've prepped module definitions and labeled values to be used in our base operating system, let's define it. All systems inherit from this defintion, both servers and computers.
 
 #+NAME: base-definition
-#+BEGIN_SRC scheme :tangle build/workstation.scm
+#+BEGIN_SRC scheme :tangle build/computer.scm
 ;; Base Operating System
 (define-public base-operating-system
   (operating-system
-    (host-name "workstation")
+    (host-name "computer")
     (hosts-file
       (plain-file "hosts"
         (string-append (local-host-aliases host-name)
         (string-append
-         "---------- This file is generated by guix-config/System.org ----------\n"
+         "---------- This file is generated by guix-config/Computer.org ----------\n"
         "192.168.0.67    BRN008077D92A06.local")))) ;; Add office printer
     (locale "en_US.utf8")
     (timezone "America/Kentucky/Louisville")
@@ -227,7 +313,7 @@ Now that we've prepped module definitions and labeled values to be used in our b
 Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compiled against it. In the future I'd like to move away from lts to get more frequent patches.
 
 #+NAME: kernel 
-#+BEGIN_SRC scheme :tangle build/workstation.scm
+#+BEGIN_SRC scheme :tangle build/computer.scm
   (kernel linux-lts)
   (firmware (list linux-firmware))
 
@@ -239,7 +325,7 @@ Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compi
 Define GRUB as the bootloader for all machines and insert an empty filesystem to be overridden by derivative machines.
 
 #+NAME: file-systems-boot-loader
-#+BEGIN_SRC scheme :tangle build/workstation.scm
+#+BEGIN_SRC scheme :tangle build/computer.scm
   ;; Boot settings (UEFI)
   (bootloader
     (bootloader-configuration
@@ -254,7 +340,7 @@ Define GRUB as the bootloader for all machines and insert an empty filesystem to
 Stub out an empty filesystem to be overriden later. Guix complains otherwise.
 
 #+NAME: file-systems-stub
-#+BEGIN_SRC scheme :tangle build/workstation.scm
+#+BEGIN_SRC scheme :tangle build/computer.scm
   (file-systems (cons*
                  (file-system
                    (mount-point "/tmp")
@@ -266,7 +352,7 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
 
 ** X Window Systems 
 
-These components and their respective dotfiles are shared across all workstations.
+These components and their respective dotfiles are shared across all computers.
 
 *** Compositor - Picom
 
@@ -436,18 +522,6 @@ Xft.lcdfilter: lcddefault
 
 I use polybar to provide a minimal amount of data in a status bar. Date, time, and a watch over CPU, RAM, and Network.
 
-**** Initialize
-
-This runs after polybar is installed for the first time.
-
-#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
-
-# move configuration and theme from Guix Store to final location
-mv ~/.config/scripts/launch-polybar ~/bin/launch-polybar && \
-echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linking launch-polybar...${CLEAR}"
-
-#+END_SRC
-
 **** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
@@ -462,7 +536,6 @@ echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linking launch-polybar...${CLEAR}
   "polybar/bars.ini"
   "polybar/modules.ini"
   "polybar/config.ini"
-  "scripts/launch-polybar"
 
 #+END_SRC
 
@@ -1093,21 +1166,6 @@ compositing-border = over
 
 #+END_SRC
 
-****** scripts/launch-polybar
-#+BEGIN_SRC sh :tangle build/scripts/launch-polybar
-#!/bin/bash
-
-# Terminate already running bar instances
-killall -q polybar
-
-# Wait until the processes have been shut down
-while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
-
-polybar -q main -c "$HOME/.config/polybar/config.ini" &
-echo "Polybar launched."
-
-#+END_SRC
-
 *** File Manager - Thunar
 
 Thunar provides a rich user interface for file management. The dotfiles configure commands I run with contextual menus based on file type.
@@ -1271,14 +1329,14 @@ icon_id = 'Hangouts'
 #+END_SRC
 
 ** Printers
-*** Brother Laser DL-2170W
+*** Brother DL-2170W
 We use a trusty Brother Laser DL-2170W printer that I bought in high school (!). The thing is a beast with 2500+ page high yield toners. 
 
 **** Initialize
 
 This runs after brlaser is installed for the first time.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh
 
 # Link configuration and theme at final location
 sudo -E ln -fs ~/.config/printers/printers.conf /etc/cups/printers.conf && \
@@ -1337,7 +1395,7 @@ Attribute marker-change-time 1633725056
 </Printer>
 #+END_SRC
 
-** Terminal - Alacritty
+** Terminal
 *** Alacritty
 We chose Alacritty primarily because of it's blazing fast performance and never looked back. It does everything we need.
 
@@ -1412,10 +1470,56 @@ colors:
     white:   '0xd8dee9'
 #+END_SRC
 
-** Editors
-Back then: vim golf.
-Now: emacs os.
+** Git
+*** Config
+We chose sensible git defaults and initialize our home directory.
 
+**** Initialize
+
+Link the .gitconfig file defined below.
+
+#+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
+
+# Link configuration and theme from Guix Store to final location
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Git] Linking .gitconfig...${CLEAR}"
+ln -fs ~/.config/git/.gitconfig ~/.gitconfig && \
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Git] Linked.${CLEAR}"
+
+#+END_SRC
+
+**** Guix Packages
+
+#+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
+ "git"
+#+END_SRC
+
+**** Dotfiles Manifest
+
+#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+  "git/.gitconfig"
+#+END_SRC
+
+**** Dotfiles
+****** .gitconfig
+
+I don't overcomplicate these; mainly just set ~main~ as default branch and give me pretty colors in git log.
+
+#+NAME: home-services-alacritty
+#+BEGIN_SRC conf  :tangle build/git/.gitconfig
+[init]
+  defaultBranch = main
+
+[user]
+  email = dustin@zeroedlabs.com
+  name = Dustin Lyons
+  username = dlyons
+  
+[alias]
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+#+END_SRC
+
+** Editors
+Back then: vim golf. Now: emacs os.
 *** Vim
 These snippets get tangled into files that run as part of Makefile targets. Initialize, and Activate after every new Guix generation.
 
@@ -1423,7 +1527,7 @@ These snippets get tangled into files that run as part of Makefile targets. Init
 
 This runs after vim is installed for the first time.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh
 
 # Download our Vim plugin manager of choice, Plug.vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
@@ -1435,9 +1539,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 This runs after vim is installed.
 
-#+BEGIN_SRC sh :tangle build/scripts/activate-home.sh
-
-# Move configuration and theme at final location
+#+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
 mv ~/.config/vim/colors/theme.vim ~/.vim/colors/theme.vim && \
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Vim] Linking theme.vim...${CLEAR}"
 
@@ -1885,13 +1987,13 @@ Note Guix has great support for Emacs packaging; @todo: Convert Emacs packages o
 
 This runs after emacs is installed.
 
-#+BEGIN_SRC sh :tangle build/scripts/activate-home.sh
+#+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
 
 # move configuration and theme from Guix Store to final location
-mv ~/.config/emacs/config.org ~/.emacs.d/config.org && \
-echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking config.org...${CLEAR}"
+#mv ~/.config/emacs/config.org ~/.emacs.d/config.org && \
+#echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking config.org...${CLEAR}"
 
-mv ~/.config/emacs/zeroed-theme.el ~/.emacs.d/zeroed-theme.el && \
+ln -fs ~/.config/emacs/zeroed-theme.el ~/.emacs.d/zeroed-theme.el && \
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking zeroed-theme.el...${CLEAR}"
 
 # Basic .el config that tangles Org file into Emacs Lisp
@@ -1899,8 +2001,9 @@ echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Writing org-babel file loader...${C
 cat <<EOF > ~/.emacs
 (package-initialize)
 (require 'org-install)
-(file-truename (org-babel-load-file "~/.emacs.d/config.org"))
+(file-truename (org-babel-load-file "~/.config/emacs/config.org"))
 EOF
+
 #+END_SRC
 
 **** Guix Packages
@@ -1950,7 +2053,7 @@ This file is brought in as part of Makefile target --config-emacs.
    ((default (:foreground zeroed-light-grey :background zeroed-dark-grey))
     (cursor (:background zeroed-light-grey)) ;; Block cursor color
     (mode-line (:background zeroed-dark-grey-2)) ;; Block cursor color
-    (region (:background zeroed-dark-grey-2)) ;; Selection box
+    (region (:foreground zeroed-yellow)) ;; Selection box
     (font-lock-keyword-face (:foreground zeroed-blue))
     (font-lock-comment-face (:foreground zeroed-orange))
     (font-lock-comment-delimiter-face (:foreground zeroed-orange))
@@ -1984,23 +2087,36 @@ This file is brought in as part of Makefile target --config-emacs.
    (provide-theme 'zeroed)
 #+END_SRC
 
+
 * Export
 
 We export the various dotfiles and package definitions described throughout this file. They are later appended to lists defined by machines that inherit the System definition.
 
-#+BEGIN_SRC scheme :tangle build/dl/workstation.scm :noweb yes
-(define-module (dl workstation)
-  #:export (%dl-packages-workstation)
-  #:export (%dl-dotfiles-workstation))
+#+BEGIN_SRC scheme :tangle build/dl/computer.scm :noweb yes
+(define-module (dl computer)
+  #:export (%dl-packages-computer)
+  #:export (%dl-dotfiles-computer))
 
-(define %dl-packages-workstation
+(define %dl-packages-computer
   (list
   <<packages-manifest>>
   ))
 
-(define %dl-dotfiles-workstation
+(define %dl-dotfiles-computer
   (list
   <<dotfiles-manifest>>
   ))
 #+END_SRC
 
+This is our activation script, built from tangled sections in this file.
+
+#+BEGIN_SRC sh :tangle build/scripts/activate-computer.sh :noweb yes
+#!/bin/bash
+<<activate-shell-script>>
+#+END_SRC
+
+Initialization script. Check out Makefile for more info on how this is used.
+#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh :noweb yes
+#!/bin/bash
+<<initialize-shell-script>>
+#+END_SRC

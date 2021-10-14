@@ -1,4 +1,4 @@
-#+TITLE: System - Desktop - Felix Definition
+#+TITLE: Computer - Desktop - Felix Definition
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
@@ -10,7 +10,10 @@
 :CONTENTS:
 - [[#operating-system][Operating System]]
 - [[#home-environment][Home Environment]]
-  - [[#dependencies][Dependencies]]
+  - [[#dependencies--setup][Dependencies & Setup]]
+    - [[#initialize][Initialize]]
+      - [[#initialize][Initialize]]
+      - [[#activate][Activate]]
   - [[#services][Services]]
     - [[#bash][Bash]]
       - [[#initialize][Initialize]]
@@ -19,7 +22,9 @@
       - [[#dotfiles-manifest][Dotfiles Manifest]]
       - [[#dotfiles][Dotfiles]]
         - [[#xmodmap][.Xmodmap]]
-  - [[#home-environment-definition][Home Environment Definition]]
+  - [[#home-environment][Home Environment]]
+    - [[#definition][Definition]]
+    - [[#export][Export]]
 :END:
 
 * Operating System
@@ -47,7 +52,7 @@ Dotfiles (i.e configuration files) are installed by Guix Home.
 
 Please note: Guix Home defines "services" below, not as Shepherd services, like Guix Linux does, but as plugins to perform a build action on your home environment. Do not get them confused.
 
-** Dependencies
+** Dependencies & Setup
 
 #+NAME: dependencies
 #+BEGIN_SRC scheme  :tangle build/felix-home.scm
@@ -65,6 +70,31 @@ Please note: Guix Home defines "services" below, not as Shepherd services, like 
   #:use-module (guix gexp))
 #+END_SRC
 
+We setup some scripts to be used throughout this file that are woven together as part of Makefile.
+
+*** Initialize
+**** Initialize
+
+Initialize our bash script that runs as part of each first install.
+
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
+# This script created from Computer-Desktop-Felix.org
+GREEN_TERMINAL_OUTPUT='\033[1;32m'
+CLEAR='\033[0m'
+
+#+END_SRC
+
+**** Activate
+
+Initialize our bash script that runs as part of each activation.
+
+#+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
+# This script created from Computer-Desktop-Felix.org
+GREEN_TERMINAL_OUTPUT='\033[1;32m'
+CLEAR='\033[0m'
+
+#+END_SRC
+
 ** Services
 
 *** Bash
@@ -73,9 +103,12 @@ Please note: Guix Home defines "services" below, not as Shepherd services, like 
 
 This runs after bash is installed for the first time. I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
 
-#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # Clone Oh-My-Bash! for the themes
-git clone https://github.com/ohmybash/oh-my-bash.git ~/.config/oh-my-bash
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Bash] Downloading oh-my-bash...${CLEAR}"
+git clone https://github.com/ohmybash/oh-my-bash.git ~/.config/oh-my-bash && \
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Bash] Download complete.${CLEAR}"
+
 #+END_SRC
 
 **** Bash Profile
@@ -92,6 +125,7 @@ export PATH=$PATH:/home/dustin/bin
 export LIBGL_ALWAYS_INDIRECT=1
 export GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
 alias ls='ls --color'
+alias open='thunar'
 
 # We are being invoked from a non-interactive shell.  If this
 # is an SSH session (as in \"ssh host command\"), source
@@ -141,9 +175,11 @@ keycode 66 = Control_L
 add control = Control_L Control_R
 #+END_SRC
 
-** Home Environment Definition
+** Home Environment
 
 The function below takes the various dotfiles manifests I have defined in my literate configuration and maps them to real files managed by guix home.
+
+*** Definition 
 
 #+NAME: home-environment-definition
 #+BEGIN_SRC scheme  :tangle build/felix-home.scm :noweb yes
@@ -171,4 +207,17 @@ The function below takes the various dotfiles manifests I have defined in my lit
           (bashrc (list
             (local-file "bash/bashrc.sh"))))))
       (generate-dotfiles-services (append '(<<dotfiles-manifest>>) %dl-dotfiles)))))
+#+END_SRC
+
+*** Export
+These are activation and initialization scripts, built from tangled sections in this file. Check out the Makefile to see how they are used.
+
+#+BEGIN_SRC sh :tangle build/scripts/activate-felix.sh :noweb yes
+#!/bin/bash
+<<activate-shell-script>>
+#+END_SRC
+
+#+BEGIN_SRC sh :tangle build/scripts/initialize-felix.sh :noweb yes
+#!/bin/bash
+<<initialize-shell-script>>
 #+END_SRC

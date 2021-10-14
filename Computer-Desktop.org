@@ -1,4 +1,4 @@
-#+TITLE: System - Desktop Definition
+#+TITLE: Computer - Desktop Definition
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
@@ -10,6 +10,8 @@
 :CONTENTS:
 - [[#operating-system][Operating System]]
   - [[#dependencies][Dependencies]]
+    - [[#initialize][Initialize]]
+    - [[#activate][Activate]]
   - [[#base-definition][Base Definition]]
   - [[#kernel][Kernel]]
   - [[#network][Network]]
@@ -32,7 +34,7 @@
     - [[#rofi][Rofi]]
       - [[#guix-packages][Guix Packages]]
       - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
+      - [[#dotfile][Dotfile]]
         - [[#rofilaunchersh][rofi/launcher.sh]]
         - [[#rofithemerasi][rofi/theme.rasi]]
 - [[#export][Export]]
@@ -49,7 +51,7 @@ Define all dependencies we need to to build the base definition.
 #+NAME: base-definition
 #+BEGIN_SRC scheme  :tangle build/desktop.scm
 (define-module (desktop)
-  #:use-module (workstation)
+  #:use-module (computer)
   #:use-module (srfi srfi-1) ;; for the remove function
   #:use-module (guix transformations)
   #:use-module (guix channels)
@@ -68,6 +70,28 @@ Define all dependencies we need to to build the base definition.
 (define transform
   (options->transformation
     '((with-graft . "mesa=nvda"))))
+#+END_SRC
+
+**** Initialize
+
+Initialize our bash script that runs as part of each first install.
+
+#+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
+# This script created from Computer-Desktop.org
+GREEN_TERMINAL_OUTPUT='\033[1;32m'
+CLEAR='\033[0m'
+
+#+END_SRC
+
+**** Activate
+
+Initialize our bash script that runs as part of each generation activation.
+
+#+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
+# This script created from Computer-Desktop.org
+GREEN_TERMINAL_OUTPUT='\033[1;32m'
+CLEAR='\033[0m'
+
 #+END_SRC
 
 ** Base Definition
@@ -103,7 +127,7 @@ Kernel modules and associated configuration. We remove the community nvidia-driv
 *** btrfs
 We use btrfs on all Systems. btrfs is great for the following reasons:
 
-- Copy on Write: Although each workstation has their own Home directory and associated dotfiles, I share my user state across machines. CoW supports shipping data back to my home-lab hypervisor.
+- Copy on Write: Although each computer has their own Home directory and associated dotfiles, I share my user state across machines. CoW supports shipping data back to my home-lab hypervisor.
 
 - Snapshots: btrfs' writeable snapshots allow us to rollback state 
 
@@ -943,7 +967,7 @@ Rofi is a quick launcher and how I primarily interface with applications in Open
   "rofi/launcher.sh"
   "rofi/theme.rasi"
 #+END_SRC
-**** Dotfiles
+**** Dotfile
 ****** rofi/launcher.sh
 
 Launches the display defined in theme.rasi.
@@ -1068,21 +1092,25 @@ We export the various dotfiles and package definitions described throughout this
   #:export (%dl-packages)
   #:export (%dl-dotfiles))
 
-  (use-modules (dl workstation)
+  (use-modules (dl computer)
                (dl desktop))
 
   (define %dl-packages
-    (append %dl-packages-workstation %dl-packages-desktop))
+    (append %dl-packages-computer %dl-packages-desktop))
 
   (define %dl-dotfiles
-    (append %dl-dotfiles-workstation %dl-dotfiles-desktop))
+    (append %dl-dotfiles-computer %dl-dotfiles-desktop))
                
 #+end_src
 
-#+begin_src scheme :tangle build/manifest/browsers.scm :noweb yes
-;; Everyday tools I use for surfing the web
-(specifications->manifest
-  '(
-    <<packages-browsers-manifest>>
-  ))
-#+end_src
+Activation and Initialization scripts. Check out the Makefile for more info on how they are used.
+
+#+BEGIN_SRC sh :tangle build/scripts/activate-desktop.sh :noweb yes
+#!/bin/bash
+<<activate-shell-script>>
+#+END_SRC
+
+#+BEGIN_SRC sh :tangle build/scripts/initialize-desktop.sh :noweb yes
+#!/bin/bash
+<<initialize-shell-script>>
+#+END_SRC

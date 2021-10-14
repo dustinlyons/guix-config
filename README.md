@@ -14,7 +14,8 @@ The configuration of my operating system, Guix Linux, and day-to-day software (w
 No more traditional dotfiles. Hello Scheme and literate configuration.
 
 ## Why?
-With everything defined in this way I can treat my system as one program. It's 100% reproducible, bit by bit.
+With everything defined in this way I can treat my system as one program. It's 100% reproducible, bit by bit. My environments across laptop
+and desktop are exactly the same, staying in sync without headache. This is the way.
 
 Every change to my system is now deployed from the [Guix Store](https://guix.gnu.org/manual/en/html_node/The-Store.html) thanks to [Guix Home](https://guix.gnu.org/manual/devel/en/html_node/Home-Configuration.html). This means I get rollbacks, transcational upgrades, fine-grained profiles, and other guix goodness with even my dotfiles.
 
@@ -42,15 +43,15 @@ $ make install
 ## Files and Organization
 I use inheritance to share configuration amgonst my machines where it makes sense. This is subject to change as I make progress, acquire new machines, setup new VMS, etc.
 
-### System.org
+### Computer.org
 ###### Base File
 Base definition of machines I'll work on day-to-day. Includes core system functions like the kernel, libinput, X Window System, etc. This is to seperate configuration concerns from machines I have running in my home-lab.
 
-### System-Desktop.org
+### Computer-Desktop.org
 ###### Inherits from `System`
 Sensible definitions for my Desktop machine that are likely to never change. Includes Openbox configuration, users and filesystems for Desktops, more dotfiles and package configuration.
 
-### System-Desktop-Felix.org
+### Computer-Desktop-Felix.org
 ###### Inherits from `Desktop`
 Felix is my Desktop computer sitting in my office at home. This is a work in progress. I'm working on using guix-home to build out a new home directory on each system configuration, setup environment variables, sym-links, etc.
 
