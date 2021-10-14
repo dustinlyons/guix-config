@@ -1,83 +1,14 @@
 #+TITLE: System - Base Definition
+#+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
 #+PROPERTY: header-args:conf :tangle-mode (identity #o555)
-#+STARTUP: content
 
 * Table of Contents
 :PROPERTIES:
 :TOC: :include all :ignore this :depth 5
 :CONTENTS:
-- [[#channels][Channels]]
-- [[#operating-system][Operating System]]
-  - [[#dependencies][Dependencies]]
-    - [[#activate][Activate]]
-  - [[#keyboard-and-mouse][Keyboard and Mouse]]
-    - [[#libinput][libinput]]
-  - [[#operating-system-definition][Operating System Definition]]
-    - [[#kernel][Kernel]]
-    - [[#file-systems][File Systems]]
-      - [[#boot-loader][Boot Loader]]
-      - [[#empty-stub][Empty Stub]]
-  - [[#x-window-systems][X Window Systems]]
-    - [[#compositor---picom][Compositor - Picom]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#manifest][Manifest]]
-      - [[#files][Files]]
-        - [[#picompicomconf][picom/picom.conf]]
-    - [[#color-theme-and-fonts][Color Theme and Fonts]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#xresources][.Xresources]]
-    - [[#status-bar---polybar][Status Bar - Polybar]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#polybarcolorsini][polybar/colors.ini]]
-        - [[#polybarbarsini][polybar/bars.ini]]
-        - [[#polybarmodulesini][polybar/modules.ini]]
-        - [[#polybarconfigini][polybar/config.ini]]
-    - [[#file-manager---thunar][File Manager - Thunar]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#thunarucaxml][Thunar/uca.xml]]
-    - [[#notifications---dunst][Notifications - Dunst]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#dunstdunstrc][dunst/dunstrc]]
-  - [[#printers][Printers]]
-    - [[#brother-laser-dl-2170w][Brother Laser DL-2170W]]
-      - [[#initialize][Initialize]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#printersconf][printers.conf]]
-  - [[#terminal---alacritty][Terminal - Alacritty]]
-    - [[#alacritty][Alacritty]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#alacrittyyml][alacritty.yml]]
-  - [[#editors][Editors]]
-    - [[#vim][Vim]]
-      - [[#initialize][Initialize]]
-      - [[#activate][Activate]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#colorsthemevim][colors/theme.vim]]
-        - [[#vimrc][.vimrc]]
-    - [[#emacs][Emacs]]
-      - [[#activate][Activate]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#emacsconfigorg][emacs/config.org]]
-        - [[#emacszeroed-themeel][emacs/zeroed-theme.el]]
-- [[#export][Export]]
+
 :END:
 
 * Channels
@@ -134,14 +65,107 @@ Define all dependencies we need to to build the base definition.
   #:use-module (gnu services ssh))
 #+END_SRC
 
+**** Initialize
+
+Initialize our bash script that runs as part of each first install.
+
+#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+# This script created from System.org
+GREEN_TERMINAL_OUTPUT='\033[1;32m'
+CLEAR='\033[0m'
+#+END_SRC
+
 **** Activate
 
 Initialize our bash script that runs as part of each generation activation.
+
 #+BEGIN_SRC sh :tangle build/scripts/activate-home.sh
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 #+END_SRC
 
+** Helpers
+
+I define small groups of packages in manifest files that enable me to build up to a larger package list of software to install. These helper scripts turn on and or update individual manifests (profiles) without forcing me to update everything. Thanks to David Wilson for these.
+
+#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+mkdir -p ~/bin
+mv build/scripts/activate-profiles ~/bin/activate-profiles
+mv build/scripts/update-profiles ~/bin/update-profiles
+chmod +x ~/bin/activate-profiles
+chmod +x ~/bin/update-profiles
+#+END_SRC
+
+**** Scripwts
+***** activate-profiles
+
+#+NAME: activate-profiles-script
+#+BEGIN_SRC scheme :tangle build/scripts/activate-profiles
+#!/bin/sh
+
+GREEN='\033[1;32m'
+RED='\033[1;30m'
+NC='\033[0m'
+GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
+
+profiles=$*
+if [[ $# -eq 0 ]]; then
+    profiles="$HOME/.config/guix/manifests/*.scm";
+fi
+
+for profile in $profiles; do
+
+  # Remove the path and file extension, if any
+  profileName=$(basename $profile)
+  profileName="${profileName%.*}"
+  profilePath="$GUIX_EXTRA_PROFILES/$profileName"
+  manifestPath=$HOME/.config/guix/manifests/$profileName.scm
+
+  if [ -f $manifestPath ]; then
+    echo -e "${GREEN}Activating profile:" $manifestPath "${NC}"
+    echo
+
+    mkdir -p $profilePath
+    guix package --manifest=$manifestPath --profile="$profilePath/$profileName"
+
+    # Source the new profile
+    GUIX_PROFILE="$profilePath/$profileName"
+    if [ -f $GUIX_PROFILE/etc/profile ]; then
+        . "$GUIX_PROFILE"/etc/profile
+    else
+        echo -e "${RED}Couldn't find profile:" $GUIX_PROFILE/etc/profile "${NC}"
+    fi
+  else
+    echo "No profile found at path" $profilePath
+  fi
+done
+#+END_SRC
+
+***** update-profiles
+
+#+NAME: update-profiles-script
+#+BEGIN_SRC sh :tangle build/scripts/update-profiles
+#!/bin/sh
+
+GREEN='\033[1;32m'
+NC='\033[0m'
+GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
+
+profiles=$*
+if [[ $# -eq 0 ]]; then
+    profiles="$GUIX_EXTRA_PROFILES/*";
+fi
+
+for profile in $profiles; do
+  profileName=$(basename $profile)
+  profilePath=$GUIX_EXTRA_PROFILES/$profileName
+
+  echo -e "${GREEN}Updating profile:" $profilePath "${NC}"
+  echo
+
+  guix package --profile="$profilePath/$profileName" --manifest="$HOME/.config/guix/manifests/$profileName.scm"
+done
+#+END_SRC
 
 ** Keyboard and Mouse
 
@@ -412,6 +436,18 @@ Xft.lcdfilter: lcddefault
 
 I use polybar to provide a minimal amount of data in a status bar. Date, time, and a watch over CPU, RAM, and Network.
 
+**** Initialize
+
+This runs after polybar is installed for the first time.
+
+#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+
+# move configuration and theme from Guix Store to final location
+mv ~/.config/scripts/launch-polybar ~/bin/launch-polybar && \
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linking launch-polybar...${CLEAR}"
+
+#+END_SRC
+
 **** Guix Packages
 
 #+BEGIN_SRC scheme :noweb-ref packages-manifest :noweb-sep ""
@@ -421,10 +457,13 @@ I use polybar to provide a minimal amount of data in a status bar. Date, time, a
 **** Dotfiles Manifest
 
 #+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep ""
+
   "polybar/colors.ini"
   "polybar/bars.ini"
   "polybar/modules.ini"
   "polybar/config.ini"
+  "scripts/launch-polybar"
+
 #+END_SRC
 
 **** Dotfiles
@@ -1054,6 +1093,21 @@ compositing-border = over
 
 #+END_SRC
 
+****** scripts/launch-polybar
+#+BEGIN_SRC sh :tangle build/scripts/launch-polybar
+#!/bin/bash
+
+# Terminate already running bar instances
+killall -q polybar
+
+# Wait until the processes have been shut down
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
+polybar -q main -c "$HOME/.config/polybar/config.ini" &
+echo "Polybar launched."
+
+#+END_SRC
+
 *** File Manager - Thunar
 
 Thunar provides a rich user interface for file management. The dotfiles configure commands I run with contextual menus based on file type.
@@ -1227,7 +1281,8 @@ This runs after brlaser is installed for the first time.
 #+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
 
 # Link configuration and theme at final location
-sudo -E ln -fs ~/.config/printers/printers.conf /etc/cups/printers.conf
+sudo -E ln -fs ~/.config/printers/printers.conf /etc/cups/printers.conf && \
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linking printers.conf...${CLEAR}"
 
 #+END_SRC
 
@@ -1860,6 +1915,7 @@ EOF
   "emacs/config.org"
   "emacs/zeroed-theme.el"
 #+END_SRC
+
 **** Dotfiles
 ****** emacs/config.org
 This file is brought in as part of Makefile target --config-emacs.
@@ -1887,6 +1943,7 @@ This file is brought in as part of Makefile target --config-emacs.
    (zeroed-dark-grey "#1F2528")
    (zeroed-dark-grey-2 "#1A1F21")
    (zeroed-greyed-out "#2F393D")
+   (zeroed-black "#151A1C")
    (zeroed-white "#FFFFFF"))
 
     ;; Face specifications
@@ -1899,8 +1956,8 @@ This file is brought in as part of Makefile target --config-emacs.
     (font-lock-comment-delimiter-face (:foreground zeroed-orange))
     (link (:foreground zeroed-blue :weight 'bold :underline t))
     (org-block (:foreground zeroed-light-grey :background zeroed-dark-grey-2))
-    (org-block-begin-line (:foreground zeroed-light-grey :background zeroed-purple))
-    (org-block-end-line (:foreground zeroed-light-grey :background zeroed-purple))
+    (org-block-begin-line (:foreground zeroed-light-grey :background zeroed-black))
+    (org-block-end-line (:foreground zeroed-light-grey :background zeroed-black))
     (org-document-info-keyword (:foreground zeroed-green :weight 'bold))
     (org-document-title (:foreground zeroed-green :weight 'bold))
     (org-level-1 (:foreground zeroed-cyan))
@@ -1908,7 +1965,7 @@ This file is brought in as part of Makefile target --config-emacs.
     (org-level-3 (:foreground zeroed-blue))
     (org-level-4 (:foreground zeroed-orange))
     (doom-modeline-buffer-modified (:foreground zeroed-red :weight 'bold))
-    (org-meta-line (:foreground zeroed-light-grey :background zeroed-dark-grey))
+    (org-meta-line (:foreground zeroed-light-grey :weight 'bold :background zeroed-black))
     (org-headline-done (:foreground zeroed-greyed-out :strike-through t))
     (minibuffer-prompt (:foreground zeroed-cyan))
     (org-drawer (:foreground zeroed-blue))
@@ -1926,7 +1983,6 @@ This file is brought in as part of Makefile target --config-emacs.
                                    ,zeroed-cyan])))
    (provide-theme 'zeroed)
 #+END_SRC
-
 
 * Export
 
