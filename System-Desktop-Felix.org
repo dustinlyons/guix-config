@@ -13,6 +13,8 @@
   - [[#dependencies][Dependencies]]
   - [[#services][Services]]
     - [[#bash][Bash]]
+      - [[#initialize][Initialize]]
+      - [[#bash-profile][Bash Profile]]
     - [[#keyboard][Keyboard]]
       - [[#dotfiles-manifest][Dotfiles Manifest]]
       - [[#dotfiles][Dotfiles]]
@@ -67,7 +69,16 @@ Please note: Guix Home defines "services" below, not as Shepherd services, like 
 
 *** Bash
 
-I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
+**** Initialize
+
+This runs after bash is installed for the first time. I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
+
+#+BEGIN_SRC sh :tangle build/scripts/initialize-home.sh
+# Clone Oh-My-Bash! for the themes
+git clone https://github.com/ohmybash/oh-my-bash.git ~/.config/oh-my-bash
+#+END_SRC
+
+**** Bash Profile
 
 #+NAME: home-services-bash
 #+BEGIN_SRC sh  :tangle build/bash/bashrc.sh
