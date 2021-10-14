@@ -1078,3 +1078,11 @@ We export the various dotfiles and package definitions described throughout this
     (append %dl-dotfiles-workstation %dl-dotfiles-desktop))
                
 #+end_src
+
+#+begin_src scheme :tangle build/manifest/browsers.scm :noweb yes
+;; Everyday tools I use for surfing the web
+(specifications->manifest
+  '(
+    <<packages-browsers-manifest>>
+  ))
+#+end_src

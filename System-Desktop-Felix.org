@@ -74,11 +74,12 @@ I use Oh-My-Bash! for terminal colors, no plugins or other aliases.
 # Export 'SHELL' to child processes.
 # Programs such as 'screen' honor it and otherwise use /bin/sh.
 export SHELL
-export LIBGL_ALWAYS_INDIRECT=1
 export LANG=en_US.UTF-8
 export OSH="$HOME/.config/oh-my-bash"
 export OSH_THEME="agnoster"
 export PATH=$PATH:/home/dustin/bin
+export LIBGL_ALWAYS_INDIRECT=1
+export GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
 alias ls='ls --color'
 
 # We are being invoked from a non-interactive shell.  If this
@@ -91,6 +92,16 @@ then
 # Don't do anything else.
 return
 fi
+
+# Load all Guix profiles
+for i in $GUIX_EXTRA_PROFILES/*; do
+  profile=$i/$(basename "$i")
+  if [ -f "$profile"/etc/profile ]; then
+    GUIX_PROFILE="$profile"
+    . "$GUIX_PROFILE"/etc/profile
+  fi
+  unset profile
+done
 
 # System wide configuration and oh-my-BASH!
 source /etc/bashrc
