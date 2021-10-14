@@ -54,5 +54,9 @@ Sensible definitions for my Desktop machine that are likely to never change. Inc
 ###### Inherits from `Desktop`
 Felix is my Desktop computer sitting in my office at home. This is a work in progress. I'm working on using guix-home to build out a new home directory on each system configuration, setup environment variables, sym-links, etc.
 
+### Emacs.org
+###### Editor Configuration
+Emacs is my editor and primary interface for using my computer day-to-day. This config is large, also defined in literate style, but does not get built beforehand like the rest of this repo. Changes are still deployed via the Guix Store but it is interpreted as Elisp at runtime.
+
 ### Get in touch
 - Feedback or questions? Find me on [Twitter](https://twitter.com/dustinhlyons).
