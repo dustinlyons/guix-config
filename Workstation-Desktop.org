@@ -8,7 +8,37 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-
+- [[#operating-system][Operating System]]
+  - [[#dependencies][Dependencies]]
+    - [[#initialize][Initialize]]
+    - [[#activate][Activate]]
+  - [[#base-definition][Base Definition]]
+  - [[#kernel][Kernel]]
+  - [[#network][Network]]
+  - [[#file-systems][File Systems]]
+    - [[#btrfs][btrfs]]
+    - [[#uefi][UEFI]]
+  - [[#users][Users]]
+  - [[#packages][Packages]]
+    - [[#services][Services]]
+      - [[#shepherd][Shepherd]]
+- [[#x-window-system-components][X Window System Components]]
+  - [[#window-manager][Window Manager]]
+    - [[#openbox][Openbox]]
+      - [[#initialize][Initialize]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#openboxautostart][openbox/autostart]]
+        - [[#openboxrcxml][openbox/rc.xml]]
+  - [[#launcher][Launcher]]
+    - [[#rofi][Rofi]]
+      - [[#guix-packages][Guix Packages]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfile][Dotfile]]
+        - [[#rofilaunchersh][rofi/launcher.sh]]
+        - [[#rofithemerasi][rofi/theme.rasi]]
+- [[#export][Export]]
 :END:
 
 * Operating System

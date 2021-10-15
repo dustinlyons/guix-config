@@ -8,7 +8,23 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-
+- [[#operating-system][Operating System]]
+- [[#home-environment][Home Environment]]
+  - [[#dependencies--setup][Dependencies & Setup]]
+    - [[#initialize][Initialize]]
+      - [[#initialize][Initialize]]
+      - [[#activate][Activate]]
+  - [[#services][Services]]
+    - [[#bash][Bash]]
+      - [[#initialize][Initialize]]
+      - [[#bash-profile][Bash Profile]]
+    - [[#keyboard][Keyboard]]
+      - [[#dotfiles-manifest][Dotfiles Manifest]]
+      - [[#dotfiles][Dotfiles]]
+        - [[#xmodmap][.Xmodmap]]
+  - [[#home-environment][Home Environment]]
+    - [[#definition][Definition]]
+    - [[#export][Export]]
 :END:
 
 * Operating System
