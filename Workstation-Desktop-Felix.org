@@ -1,4 +1,4 @@
-#+TITLE: Computer - Desktop - Felix Definition
+#+TITLE: Workstation - Desktop - Felix Definition
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
@@ -8,23 +8,7 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-- [[#operating-system][Operating System]]
-- [[#home-environment][Home Environment]]
-  - [[#dependencies--setup][Dependencies & Setup]]
-    - [[#initialize][Initialize]]
-      - [[#initialize][Initialize]]
-      - [[#activate][Activate]]
-  - [[#services][Services]]
-    - [[#bash][Bash]]
-      - [[#initialize][Initialize]]
-      - [[#bash-profile][Bash Profile]]
-    - [[#keyboard][Keyboard]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#xmodmap][.Xmodmap]]
-  - [[#home-environment][Home Environment]]
-    - [[#definition][Definition]]
-    - [[#export][Export]]
+
 :END:
 
 * Operating System
@@ -78,7 +62,7 @@ We setup some scripts to be used throughout this file that are woven together as
 Initialize our bash script that runs as part of each first install.
 
 #+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
-# This script created from Computer-Desktop-Felix.org
+# This script created from Workstation-Desktop-Felix.org
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 
@@ -89,7 +73,7 @@ CLEAR='\033[0m'
 Initialize our bash script that runs as part of each activation.
 
 #+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
-# This script created from Computer-Desktop-Felix.org
+# This script created from Workstation-Desktop-Felix.org
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 

@@ -14,21 +14,21 @@ CLEAR = \033[0m
 --config-felix: --config-desktop
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Felix...${CLEAR}"
-		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Computer-Desktop-Felix.org")'
+		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop-Felix.org")'
 	}
 
 .ONESHELL:
 --config-desktop: --config-computer
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Desktop Computer...${CLEAR}"
-		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Computer-Desktop.org")'
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Desktop Workstation...${CLEAR}"
+		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop.org")'
 	}
 
 .ONESHELL:
 --config-computer: --config-emacs
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Base Computer...${CLEAR}"
-		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Computer.org")'
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Base Workstation...${CLEAR}"
+		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation.org")'
 	}
 
 .ONESHELL:

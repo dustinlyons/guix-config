@@ -1,4 +1,4 @@
-#+TITLE: Computer - Desktop Definition
+#+TITLE: Workstation - Desktop Definition
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
@@ -8,37 +8,7 @@
 :PROPERTIES:
 :TOC: :include all :ignore this
 :CONTENTS:
-- [[#operating-system][Operating System]]
-  - [[#dependencies][Dependencies]]
-    - [[#initialize][Initialize]]
-    - [[#activate][Activate]]
-  - [[#base-definition][Base Definition]]
-  - [[#kernel][Kernel]]
-  - [[#network][Network]]
-  - [[#file-systems][File Systems]]
-    - [[#btrfs][btrfs]]
-    - [[#uefi][UEFI]]
-  - [[#users][Users]]
-  - [[#packages][Packages]]
-    - [[#services][Services]]
-      - [[#shepherd][Shepherd]]
-- [[#x-window-system-components][X Window System Components]]
-  - [[#window-manager][Window Manager]]
-    - [[#openbox][Openbox]]
-      - [[#initialize][Initialize]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfiles][Dotfiles]]
-        - [[#openboxautostart][openbox/autostart]]
-        - [[#openboxrcxml][openbox/rc.xml]]
-  - [[#launcher][Launcher]]
-    - [[#rofi][Rofi]]
-      - [[#guix-packages][Guix Packages]]
-      - [[#dotfiles-manifest][Dotfiles Manifest]]
-      - [[#dotfile][Dotfile]]
-        - [[#rofilaunchersh][rofi/launcher.sh]]
-        - [[#rofithemerasi][rofi/theme.rasi]]
-- [[#export][Export]]
+
 :END:
 
 * Operating System
@@ -78,7 +48,7 @@ Define all dependencies we need to to build the base definition.
 Initialize our bash script that runs as part of each first install.
 
 #+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
-# This script created from Computer-Desktop.org
+# This script created from Workstation-Desktop.org
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 
@@ -89,7 +59,7 @@ CLEAR='\033[0m'
 Initialize our bash script that runs as part of each generation activation.
 
 #+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
-# This script created from Computer-Desktop.org
+# This script created from Workstation-Desktop.org
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 
