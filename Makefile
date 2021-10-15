@@ -7,7 +7,6 @@ GREEN_TERMINAL_OUTPUT = \033[1;32m
 RED_TERMINAL_OUTPUT = \033[1;31m
 CLEAR = \033[0m
 
-
 ## Config Targets - Tangle literate config into real conf and shell files
 ## =============================================================================
 .ONESHELL:
@@ -117,8 +116,6 @@ install-system: --install-felix
 		fi
 	}
 
-## Misc Targets - Helpful make targets go here
-## =============================================================================
 clean: 
 	@echo "Removing build artifacts..."
 	@rm -rf build
