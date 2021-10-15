@@ -52,11 +52,11 @@ Base definition of machines I'll work on day-to-day. Includes core system functi
 Sensible definitions for my Desktop machine that are likely to never change. Includes Openbox configuration, users and filesystems for Desktops, more dotfiles and package configuration.
 
 ### Workstation-Laptop.org
-###### ~(Coming soon!)~ Inherits from `Workstation`
+###### Inherits from `Workstation` _(Coming soon!)_
 Sensible definitions for my Laptop machine that are likely to never change. Includes i3 configuration, Thinkpad keybindings, battery optimizations, wifi, more dotfiles and package configuration.
 
 ### Workstation-Laptop-Chevy.org
-###### ~(Coming soon!)~ Inherits from `Laptop`
+###### Inherits from `Laptop` _(Coming soon!)_
 2021 Thinkpad x1 Nano on order.
 
 ### Workstation-Desktop-Felix.org
