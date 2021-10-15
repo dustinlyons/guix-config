@@ -45,15 +45,23 @@ I use inheritance to share configuration between my machines where it makes sens
 
 ### Workstation.org
 ###### Base File
-Base definition of machines I'll work on day-to-day. Includes core system functions like the kernel, libinput, X Window System, etc. This is to seperate configuration concerns from machines I have running in my home-lab.
+Base definition of machines I'll work on day-to-day. Includes core system functions like the kernel, libinput, X Window System, etc. This is to seperate configuration concerns from machines I have running in my home-lab, but keep things shared between my Desktop and Laptop.
 
 ### Workstation-Desktop.org
 ###### Inherits from `Workstation`
 Sensible definitions for my Desktop machine that are likely to never change. Includes Openbox configuration, users and filesystems for Desktops, more dotfiles and package configuration.
 
+### Workstation-Laptop.org
+###### ~(Coming soon!)~ Inherits from `Workstation`
+Sensible definitions for my Laptop machine that are likely to never change. Includes i3 configuration, Thinkpad keybindings, battery optimizations, wifi, more dotfiles and package configuration.
+
+### Workstation-Laptop-Chevy.org
+###### ~(Coming soon!)~ Inherits from `Laptop`
+2021 Thinkpad x1 Nano on order.
+
 ### Workstation-Desktop-Felix.org
 ###### Inherits from `Desktop`
-Felix is my Desktop computer sitting in my office at home. This is a work in progress. I'm working on using guix-home to build out a new home directory on each system configuration, setup environment variables, sym-links, etc.
+Felix is my Desktop computer sitting in my office at home. This file contains a lightweight Operating System definition and an extensive Guix Home definition, as well as some associated dotfiles, initialization scripts, etc. I don't store anything meaningful in my Home directory (it's all kept in /data), so this script manages 100% of my it.
 
 ### Emacs.org
 ###### Editor Configuration
