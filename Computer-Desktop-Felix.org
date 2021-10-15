@@ -95,7 +95,6 @@ CLEAR='\033[0m'
 
 #+END_SRC
 
-
 ** Services
 
 *** Bash
@@ -175,7 +174,6 @@ clear control
 keycode 66 = Control_L
 add control = Control_L Control_R
 #+END_SRC
-
 
 ** Home Environment
 
