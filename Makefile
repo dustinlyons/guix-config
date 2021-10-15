@@ -2,6 +2,7 @@
 # Dustin Lyons
 
 SHELL = /bin/sh
+BOLD_TERMINAL_OUTPUT = \e[1;4m
 GREEN_TERMINAL_OUTPUT = \033[1;32m
 RED_TERMINAL_OUTPUT = \033[1;31m
 CLEAR = \033[0m
@@ -12,21 +13,21 @@ CLEAR = \033[0m
 .ONESHELL:
 --config-felix: --config-desktop
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}Building Felix...${CLEAR}"
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Felix...${CLEAR}"
 		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Computer-Desktop-Felix.org")'
 	}
 
 .ONESHELL:
 --config-desktop: --config-computer
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}Building Desktop Computer...${CLEAR}"
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Desktop Computer...${CLEAR}"
 		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Computer-Desktop.org")'
 	}
 
 .ONESHELL:
 --config-computer: --config-emacs
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}Building Base Computer...${CLEAR}"
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Base Computer...${CLEAR}"
 		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Computer.org")'
 	}
 
@@ -35,7 +36,7 @@ CLEAR = \033[0m
 	@{ \
 		mkdir -p ./build/emacs
 		cp Emacs.org ./build/emacs/config.org && \
-			echo -e "${GREEN_TERMINAL_OUTPUT}--> Copied Emacs.org in preparation for Guix Home daemon...${CLEAR}"
+			echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Copied Emacs.org in preparation for Guix Home daemon...${CLEAR}"
 	}
 
 
@@ -44,9 +45,9 @@ CLEAR = \033[0m
 .ONESHELL:
 --deploy-felix-system:
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}--> Deploying Guix System...${CLEAR}"
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Deploying Guix System...${CLEAR}"
 		if sudo -E guix system --cores=12 --load-path=./build reconfigure ./build/felix-os.scm; then
-			echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished deploying Guix System.${CLEAR}"
+			echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished deploying Guix System.${CLEAR}"
 		fi
 	}
 
@@ -55,7 +56,7 @@ CLEAR = \033[0m
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> Deploying Guix Home...${CLEAR}"
 		if guix home --load-path=./build reconfigure ./build/felix-home.scm; then
-			 echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished deploying Guix Home.${CLEAR}"
+			 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished deploying Guix Home.${CLEAR}"
 		fi
 	}
 
@@ -64,11 +65,11 @@ CLEAR = \033[0m
 .ONESHELL:
 --activate-felix:
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}--> Activating Guix System...${CLEAR}"
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Activating Guix System...${CLEAR}"
 		./build/scripts/activate-computer.sh && \
 			./build/scripts/activate-desktop.sh && \
 				./build/scripts/activate-felix.sh && \
-					echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished activating Guix System.${CLEAR}"
+					echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished activating Guix System.${CLEAR}"
 	}
 
 .ONESHELL:
@@ -78,7 +79,7 @@ CLEAR = \033[0m
 		./build/scripts/initialize-computer.sh && \
 			./build/scripts/initialize-desktop.sh && \
 				./build/scripts/initialize-felix.sh && \
-					echo -e "${GREEN_TERMINAL_OUTPUT}--> Successfully initialized Guix System.${CLEAR}"
+					echo -e "${BOLD_TERMINAL_OUTPUT}--> [Makefile] Successfully initialized Guix System. Hooray!${CLEAR}"
 	}
 
 ## Install Targets - Dry run targets, or the real deal
@@ -93,25 +94,26 @@ install-system: --install-felix
 .ONESHELL:
 --install-felix-dry-run:
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}Installing Guix System...${CLEAR}"
+		echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT}--> [Makefile] Installing Guix System...${CLEAR}"
 		if sudo -E guix system --cores=12 --dry-run --load-path=./build reconfigure ./build/felix-os.scm; then
-			echo -e "${GREEN_TERMINAL_OUTPUT}--> Finished installing Guix System.${CLEAR}"
+			echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished installing Guix System. Hooray!${CLEAR}"
 		else
-			echo -e "${RED_TERMINAL_OUTPUT}x Failed to install Guix System.${CLEAR}"
+			echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT} x [Makefile] Failed to install Guix System.${CLEAR}"
 		fi
 	}
 
 .ONESHELL:
 --install-felix-home: --deploy-felix-home --activate-felix
+		@echo -e "${BOLD_TERMINAL_OUTPUT}--> [Makefile] Finished installing Guix Home. Hooray!${CLEAR}"
 
 .ONESHELL:
 --install-felix-home-dry-run:
 	@{ \
-		echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT} Installing Guix System Home..."
+		echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT} Installing Guix System Home...${CLEAR}"
 		if guix home --dry-run --load-path=./build reconfigure ./build/felix-home.scm; then
-			echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT}--> Finished installing Guix Home."
+			echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished installing Guix Home.${CLEAR}"
 		else
-			echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT} x Failed to install Guix Home."
+			echo -e "${RED_TERMINAL_OUTPUT}[DRY RUN]${CLEAR}${GREEN_TERMINAL_OUTPUT} x [Makefile] Failed to install Guix Home.${CLEAR}"
 		fi
 	}
 

@@ -152,6 +152,7 @@ Initialize our bash script that runs as part of each first install.
 
 #+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # This script created from Computer.org
+WORKING_DIR=$(dirname $(readlink -f $0))
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 
@@ -176,8 +177,8 @@ I define small groups of packages in manifest files that enable me to build up t
 mkdir -p ~/bin
 
 # activate-profiles and update-profiles, scripts for Guix profiles
-mv build/scripts/activate-profiles ~/bin/activate-profiles
-mv build/scripts/update-profiles ~/bin/update-profiles
+mv $WORKING_DIR/activate-profiles ~/bin/activate-profiles
+mv $WORKING_DIR/update-profiles ~/bin/update-profiles
 chmod +x ~/bin/activate-profiles
 chmod +x ~/bin/update-profiles
 
@@ -187,7 +188,7 @@ chmod +x ~/bin/update-profiles
 ***** activate-profiles
 
 #+NAME: activate-profiles-script
-#+BEGIN_SRC scheme :tangle build/scripts/activate-profiles
+#+BEGIN_SRC sh :tangle build/scripts/activate-profiles
 #!/bin/sh
 
 GREEN='\033[1;32m'
@@ -1341,7 +1342,7 @@ This runs after brlaser is installed for the first time.
 # Link configuration and theme at final location
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linking printers.conf...${CLEAR}"
 sudo -E ln -fs ~/.config/printers/printers.conf /etc/cups/printers.conf && \
-    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linked printers.conf.${CLEAR}"
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Polybar] Linked.${CLEAR}"
 
 #+END_SRC
 
@@ -1529,8 +1530,10 @@ This runs after vim is installed for the first time.
 
 #+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # Download our Vim plugin manager of choice, Plug.vim
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Vim] Downloading plug.vim...${CLEAR}"
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Vim] Completed.${CLEAR}"
 
 #+END_SRC
 

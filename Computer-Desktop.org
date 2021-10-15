@@ -236,9 +236,14 @@ Openbox is great on a big monitor, so it's primarily used on my Desktop. The dot
 This runs after openbox is installed for the first time.
 
 #+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
-echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] Downloading openbox theme...${CLEAR}"
-git clone git@github.com:Dovias/Kaunas.git ~/.themes/Kaunas && \
-    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] Download successful.${CLEAR}"
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] Looking for openbox theme...${CLEAR}"
+if [[ -d "$HOME/.themes/Kaunas" ]]; then 
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] Found Kaunas.${CLEAR}"
+else
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] None found. Cloning Kaunas...${CLEAR}"
+    git clone git@github.com:Dovias/Kaunas.git ~/.themes/Kaunas && \ 
+        echo -e "${GREEN_TERMINAL_OUTPUT}--> [Openbox] Download successful.${CLEAR}"
+fi
 
 #+END_SRC
 
@@ -287,6 +292,7 @@ picom --xrender-sync-fence --backend xrender --config="$HOME/.config/picom/picom
 
 ****** openbox/rc.xml
 rc.xml holds the desktop menu, keyboard shortucts, workspaces, window placement, and display settings.
+
 #+BEGIN_SRC xml :visiblity folded :tangle build/openbox/rc.xml
 <?xml version="1.0"?>
 <openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">
