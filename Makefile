@@ -2,7 +2,7 @@
 # Dustin Lyons
 
 SHELL = /bin/sh
-BOLD_TERMINAL_OUTPUT = \e[1;4m
+CYAN_TERMINAL_OUTPUT = \033[1;36m
 GREEN_TERMINAL_OUTPUT = \033[1;32m
 RED_TERMINAL_OUTPUT = \033[1;31m
 CLEAR = \033[0m
@@ -65,11 +65,11 @@ CLEAR = \033[0m
 .ONESHELL:
 --activate-felix:
 	@{ \
-		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Activating Guix System...${CLEAR}"
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Activating Guix Home...${CLEAR}"
 		./build/scripts/activate-computer.sh && \
 			./build/scripts/activate-desktop.sh && \
 				./build/scripts/activate-felix.sh && \
-					echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished activating Guix System.${CLEAR}"
+					echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished activating Guix Home.${CLEAR}"
 	}
 
 .ONESHELL:
@@ -79,7 +79,7 @@ CLEAR = \033[0m
 		./build/scripts/initialize-computer.sh && \
 			./build/scripts/initialize-desktop.sh && \
 				./build/scripts/initialize-felix.sh && \
-					echo -e "${BOLD_TERMINAL_OUTPUT}--> [Makefile] Successfully initialized Guix System. Hooray!${CLEAR}"
+					echo -e "${CYAN_TERMINAL_OUTPUT}--> [Makefile] Successfully initialized Guix System. Hooray!${CLEAR}"
 	}
 
 ## Install Targets - Dry run targets, or the real deal
@@ -104,7 +104,7 @@ install-system: --install-felix
 
 .ONESHELL:
 --install-felix-home: --deploy-felix-home --activate-felix
-		@echo -e "${BOLD_TERMINAL_OUTPUT}--> [Makefile] Finished installing Guix Home. Hooray!${CLEAR}"
+		@echo -e "${CYAN_TERMINAL_OUTPUT}--> [Makefile] Finished installing Guix Home. Hooray!${CLEAR}"
 
 .ONESHELL:
 --install-felix-home-dry-run:
