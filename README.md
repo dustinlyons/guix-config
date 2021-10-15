@@ -41,7 +41,7 @@ $ make install
 ```
 
 ## Files and Organization
-I use inheritance to share configuration amgonst my machines where it makes sense. This is subject to change as I make progress, acquire new machines, setup new VMS, etc.
+I use inheritance to share configuration between my machines where it makes sense. This is subject to change as I make progress, acquire new machines, setup new VMS, etc.
 
 ### Workstation.org
 ###### Base File
