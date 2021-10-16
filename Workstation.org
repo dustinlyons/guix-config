@@ -1961,11 +1961,13 @@ This runs after emacs is installed.
 
 #+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
 
+# Link our theme so that Emacs can find it
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking zeroed-theme.el...${CLEAR}" && \
 ln -fs ~/.config/emacs/zeroed-theme.el ~/.emacs.d/zeroed-theme.el && \
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Emacs.org ready to go.${CLEAR}"
 
-# Basic .el config that tangles Org file into Emacs Lisp
+# Write out a basic ~/.emacs file that extracts source blocks
+# from Emacs.org after it has been deployed via Guix
 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Writing org-babel file loader...${CLEAR}" && \
 cat <<EOF > ~/.emacs
 (package-initialize)
@@ -1973,8 +1975,8 @@ cat <<EOF > ~/.emacs
 (file-truename (org-babel-load-file "~/.config/emacs/config.org"))
 EOF
 
-echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Removing old config.el...${CLEAR}"
 # Keep one backup around just in case
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Removing old config.el...${CLEAR}"
 if [[ -f ~/.config/emacs/config.el.bkp ]]; then
     if [[ -f ~/.config/emacs/config.el ]]; then
         mv ~/.config/emacs/config.el ~/.config/emacs/config.el.bkp && \
