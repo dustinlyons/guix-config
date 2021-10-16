@@ -54,7 +54,7 @@ Define all dependencies we need to to build the base definition.
 #+NAME: base-definition
 #+BEGIN_SRC scheme  :tangle build/desktop.scm
 (define-module (desktop)
-  #:use-module (workstation)
+  #:use-module (computer)
   #:use-module (srfi srfi-1) ;; for the remove function
   #:use-module (guix transformations)
   #:use-module (guix channels)
@@ -68,8 +68,7 @@ Define all dependencies we need to to build the base definition.
   #:use-module (gnu services desktop)
   #:use-module (nongnu packages nvidia)
   #:use-module (dl utils) ;; for the dotfiles functions
-  #:use-module (gnu)
-  #:export (desktop-operating-system))
+  #:use-module (gnu))
 
 (define transform
   (options->transformation
@@ -82,7 +81,6 @@ Initialize our bash script that runs as part of each first install.
 
 #+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # This script created from Workstation-Desktop.org
-set -e
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 
@@ -94,22 +92,21 @@ Initialize our bash script that runs as part of each generation activation.
 
 #+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
 # This script created from Workstation-Desktop.org
-set -e
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 
 #+END_SRC
 
-*** Keyboard and Mouse
+** Keyboard and Mouse
 
 Prepare some rules, config to be used in base operating system definition. This is common across all machines, so I keep this here. All changes get propogated everywhere.
 
-**** libinput
+*** libinput
 
  Use =libinput= driver for all input devices as it provides more optionality.
 
 #+NAME: keyboard-mouse-config
-#+BEGIN_SRC scheme :tangle build/desktop.scm
+#+BEGIN_SRC scheme :tangle build/computer.scm
 ;; @todo: Move this to where it is used in slim-service-type
 (define %xorg-libinput-config
   "Section \"InputClass\"
@@ -1144,14 +1141,14 @@ We export the various dotfiles and package definitions described throughout this
   #:export (%dl-packages)
   #:export (%dl-dotfiles))
 
-  (use-modules (dl workstation)
+  (use-modules (dl computer)
                (dl desktop))
 
   (define %dl-packages
-    (append %dl-packages-workstation %dl-packages-desktop))
+    (append %dl-packages-computer %dl-packages-desktop))
 
   (define %dl-dotfiles
-    (append %dl-dotfiles-workstation %dl-dotfiles-desktop))
+    (append %dl-dotfiles-computer %dl-dotfiles-desktop))
                
 #+end_src
 
