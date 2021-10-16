@@ -1977,7 +1977,7 @@ echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Removing old config.el...${CLEAR}"
 # Keep one backup around just in case
 if [[ -f ~/.config/emacs/config.el.bkp ]]; then
     if [[ -f ~/.config/emacs/config.el ]]; then
-        mv ~/.config/emacs/config.el ~/.config/emacs/config.el.bkp
+        mv ~/.config/emacs/config.el ~/.config/emacs/config.el.bkp && \
         rm ~/.config/emacs/config.el.bkp
     fi
 else
