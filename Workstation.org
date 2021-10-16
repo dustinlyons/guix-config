@@ -17,8 +17,6 @@
     - [[#scripts][Scripts]]
       - [[#activate-profiles][activate-profiles]]
       - [[#update-profiles][update-profiles]]
-  - [[#keyboard-and-mouse][Keyboard and Mouse]]
-    - [[#libinput][libinput]]
   - [[#operating-system-definition][Operating System Definition]]
     - [[#kernel][Kernel]]
     - [[#file-systems][File Systems]]
@@ -31,6 +29,7 @@
       - [[#files][Files]]
         - [[#picompicomconf][picom/picom.conf]]
     - [[#color-theme-and-fonts][Color Theme and Fonts]]
+      - [[#activate][Activate]]
       - [[#guix-packages][Guix Packages]]
       - [[#dotfiles-manifest][Dotfiles Manifest]]
       - [[#dotfiles][Dotfiles]]
@@ -255,39 +254,6 @@ for profile in $profiles; do
 done
 #+END_SRC
 
-** Keyboard and Mouse
-
-Prepare some rules, config to be used in base operating system definition. This is common across all machines, so I keep this here. All changes get propogated everywhere.
-
-*** libinput
-
- Use =libinput= driver for all input devices as it provides more optionality.
-
-#+NAME: base-definition-config
-#+BEGIN_SRC scheme :tangle build/computer.scm
-;; @todo: Move this to where it is used in slim-service-type
-(define %xorg-libinput-config
-  "Section \"InputClass\"
-    Identifier \"Touchpads\"
-    Driver \"libinput\"
-    MatchDevicePath \"/dev/input/event*\"
-    MatchIsTouchpad \"on\"
-
-    Option \"Tapping\" \"on\"
-    Option \"TappingDrag\" \"on\"
-    Option \"DisableWhileTyping\" \"on\"
-    Option \"MiddleEmulation\" \"on\"
-    Option \"ScrollMethod\" \"twofinger\"
-  EndSection
-
-  Section \"InputClass\"
-    Identifier \"Keyboards\"
-    Driver \"libinput\"
-    MatchDevicePath \"/dev/input/event*\"
-    MatchIsKeyboard \"on\"
-  EndSection")
-#+end_src
-
 ** Operating System Definition
 
 Now that we've prepped module definitions and labeled values to be used in our base operating system, let's define it. All systems inherit from this defintion, both servers and computers.
@@ -433,6 +399,18 @@ unredir-if-possible = false;
 *** Color Theme and Fonts
 
 I use my own theme throughout my terminal, emacs, and status bars.
+
+**** Activate
+
+Link the .Xresources file defined below.
+
+#+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
+# Link configuration and theme from Guix Store to final location
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [X11] Linking Xresources...${CLEAR}"
+mv ~/.config/.Xresources ~/.Xresources && \
+    echo -e "${GREEN_TERMINAL_OUTPUT}--> [X11] Linked.${CLEAR}"
+
+#+END_SRC
 
 **** Guix Packages
 
