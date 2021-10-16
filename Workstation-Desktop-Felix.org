@@ -79,6 +79,7 @@ Initialize our bash script that runs as part of each first install.
 
 #+BEGIN_SRC sh :noweb-ref initialize-shell-script :noweb-sep ""
 # This script created from Workstation-Desktop-Felix.org
+set -e
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 
@@ -90,6 +91,7 @@ Initialize our bash script that runs as part of each activation.
 
 #+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
 # This script created from Workstation-Desktop-Felix.org
+set -e
 GREEN_TERMINAL_OUTPUT='\033[1;32m'
 CLEAR='\033[0m'
 

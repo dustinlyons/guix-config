@@ -265,7 +265,7 @@ Predefine windows with hotkeys and jump to them.
   :bind (("M-o" . ace-window))
   :custom
     (aw-scope 'frame)
-    (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+    (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)) ;; home row to jump around
     (aw-minibuffer-flag t)
   :config
     (ace-window-display-mode 1))
@@ -384,6 +384,14 @@ Note the weekly scope of the command's precision.")
        (interactive)
        (insert "*** New Config\n")
        (insert "Description\n\n")
+       (insert "**** Initialize\n")
+       (insert "#+BEGIN_SRC scheme :noweb-ref initialize-shell-script :noweb-sep \"\"\n")
+       (insert "\"\"\n")
+       (insert "#+END_SRC\n\n")
+       (insert "**** Activate\n")
+       (insert "#+BEGIN_SRC scheme :noweb-ref activate-shell-script :noweb-sep \"\"\n")
+       (insert "\"\"\n")
+       (insert "#+END_SRC\n\n")
        (insert "**** Guix Packages\n")
        (insert "**** Dotfiles Manifest\n\n")
        (insert "#+BEGIN_SRC scheme :noweb-ref dotfiles-manifest :noweb-sep \"\"\n")
@@ -392,8 +400,11 @@ Note the weekly scope of the command's precision.")
        (insert "**** Dotfiles\n")
        (insert "****** New File"))
 
- (dl/leader-keys
-  "c"  '(dl/insert-new-config :which-key "new config")
+(dl/leader-keys
+  "c"  '(:ignore t :which-key "compilation")
+  "cc" '(compile :which-key "compile guix")
+  "cr" '(recompile :which-key "recompile guix")
+  "d"  '(dl/insert-new-config :which-key "new guix config")
   ","  '(dl/insert-current-time :which-key "current time"))
 
 #+END_SRC
@@ -848,6 +859,7 @@ Everything related to M-x compile.
 #+BEGIN_SRC emacs-lisp 
 ;; Auto scroll the buffer as we compile
 (setq compilation-scroll-output t)
+(setq compile-command "make -k; make install-home")
 
 ;; By default, eshell doesn't support ANSI colors. Enable them for compilation.
 (require 'ansi-color)

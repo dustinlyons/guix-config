@@ -17,14 +17,14 @@ CLEAR = \033[0m
 	}
 
 .ONESHELL:
---config-desktop: --config-computer
+--config-desktop: --config-workstation
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Desktop Workstation...${CLEAR}"
 		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop.org")'
 	}
 
 .ONESHELL:
---config-computer: --config-emacs
+--config-workstation: --config-emacs
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Base Workstation...${CLEAR}"
 		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation.org")'
@@ -34,8 +34,10 @@ CLEAR = \033[0m
 --config-emacs:
 	@{ \
 		mkdir -p ./build/emacs
-		cp Emacs.org ./build/emacs/config.org && \
-			echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Copied Emacs.org in preparation for Guix Home daemon...${CLEAR}"
+		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Emacs...${CLEAR}"
+		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Emacs.org")' && \
+			mv ./config.el ./build/emacs/config.el && \
+				echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished.${CLEAR}"
 	}
 
 
@@ -45,18 +47,16 @@ CLEAR = \033[0m
 --deploy-felix-system:
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Deploying Guix System...${CLEAR}"
-		if sudo -E guix system --cores=12 --load-path=./build reconfigure ./build/felix-os.scm; then
+		sudo -E guix system --cores=12 --load-path=./build reconfigure ./build/felix-os.scm && \
 			echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished deploying Guix System.${CLEAR}"
-		fi
 	}
 
 .ONESHELL:
 --deploy-felix-home:
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> Deploying Guix Home...${CLEAR}"
-		if guix home --load-path=./build reconfigure ./build/felix-home.scm; then
-			 echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished deploying Guix Home.${CLEAR}"
-		fi
+		guix home --load-path=./build reconfigure ./build/felix-home.scm && \
+			echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished deploying Guix Home.${CLEAR}"
 	}
 
 ## Activation & Initalize Targets - shell scripts, etc.
@@ -65,7 +65,7 @@ CLEAR = \033[0m
 --activate-felix:
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Activating Guix Home...${CLEAR}"
-		./build/scripts/activate-computer.sh && \
+		./build/scripts/activate-workstation.sh && \
 			./build/scripts/activate-desktop.sh && \
 				./build/scripts/activate-felix.sh && \
 					echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished activating Guix Home.${CLEAR}"
@@ -75,7 +75,7 @@ CLEAR = \033[0m
 --initalize-felix:
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> Initializing Guix System...${CLEAR}"
-		./build/scripts/initialize-computer.sh && \
+		./build/scripts/initialize-workstation.sh && \
 			./build/scripts/initialize-desktop.sh && \
 				./build/scripts/initialize-felix.sh && \
 					echo -e "${CYAN_TERMINAL_OUTPUT}--> [Makefile] Successfully initialized Guix System. Hooray!${CLEAR}"
