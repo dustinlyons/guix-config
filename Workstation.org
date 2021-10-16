@@ -1972,8 +1972,8 @@ cat <<EOF > ~/.emacs
 (require 'org-install)
 (file-truename (org-babel-load-file "~/.config/emacs/config.org"))
 EOF
-echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Removing old config.el...${CLEAR}"
 
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Removing old config.el...${CLEAR}"
 # Keep one backup around just in case
 if [[ -f ~/.config/emacs/config.el.bkp ]]; then
     if [[ -f ~/.config/emacs/config.el ]]; then
