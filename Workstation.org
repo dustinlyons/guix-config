@@ -124,8 +124,8 @@ Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_n
 Define all dependencies we need to to build the base definition.
    
 #+NAME: base-definition 
-#+BEGIN_SRC scheme :tangle build/computer.scm
-(define-module (computer)
+#+BEGIN_SRC scheme :tangle build/workstation.scm
+(define-module (workstation)
   #:use-module (gnu)
   #:use-module (guix)
   #:use-module (gnu packages)
@@ -259,11 +259,11 @@ done
 Now that we've prepped module definitions and labeled values to be used in our base operating system, let's define it. All systems inherit from this defintion, both servers and computers.
 
 #+NAME: base-definition
-#+BEGIN_SRC scheme :tangle build/computer.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
 ;; Base Operating System
 (define-public base-operating-system
   (operating-system
-    (host-name "computer")
+    (host-name "workstation")
     (hosts-file
       (plain-file "hosts"
         (string-append (local-host-aliases host-name)
@@ -281,7 +281,7 @@ Now that we've prepped module definitions and labeled values to be used in our b
 Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compiled against it. In the future I'd like to move away from lts to get more frequent patches.
 
 #+NAME: kernel 
-#+BEGIN_SRC scheme :tangle build/computer.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
   (kernel linux-lts)
   (firmware (list linux-firmware))
 
@@ -293,7 +293,7 @@ Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compi
 Define GRUB as the bootloader for all machines and insert an empty filesystem to be overridden by derivative machines.
 
 #+NAME: file-systems-boot-loader
-#+BEGIN_SRC scheme :tangle build/computer.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
   ;; Boot settings (UEFI)
   (bootloader
     (bootloader-configuration
@@ -308,7 +308,7 @@ Define GRUB as the bootloader for all machines and insert an empty filesystem to
 Stub out an empty filesystem to be overriden later. Guix complains otherwise.
 
 #+NAME: file-systems-stub
-#+BEGIN_SRC scheme :tangle build/computer.scm
+#+BEGIN_SRC scheme :tangle build/workstation.scm
   (file-systems (cons*
                  (file-system
                    (mount-point "/tmp")
@@ -1961,20 +1961,28 @@ This runs after emacs is installed.
 
 #+BEGIN_SRC sh :noweb-ref activate-shell-script :noweb-sep ""
 
-# move configuration and theme from Guix Store to final location
-#mv ~/.config/emacs/config.org ~/.emacs.d/config.org && \
-#echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking config.org...${CLEAR}"
-
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking zeroed-theme.el...${CLEAR}" && \
 ln -fs ~/.config/emacs/zeroed-theme.el ~/.emacs.d/zeroed-theme.el && \
-echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Linking zeroed-theme.el...${CLEAR}"
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Emacs.org ready to go.${CLEAR}"
 
 # Basic .el config that tangles Org file into Emacs Lisp
-echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Writing org-babel file loader...${CLEAR}"
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Writing org-babel file loader...${CLEAR}" && \
 cat <<EOF > ~/.emacs
 (package-initialize)
 (require 'org-install)
 (file-truename (org-babel-load-file "~/.config/emacs/config.org"))
 EOF
+echo -e "${GREEN_TERMINAL_OUTPUT}--> [Emacs] Removing old config.el...${CLEAR}"
+
+# Keep one backup around just in case
+if [[ -f ~/.config/emacs/config.el.bkp ]]; then
+    if [[ -f ~/.config/emacs/config.el ]]; then
+        mv ~/.config/emacs/config.el ~/.config/emacs/config.el.bkp
+        rm ~/.config/emacs/config.el.bkp
+    fi
+else
+    mv ~/.config/emacs/config.el ~/.config/emacs/config.el.bkp
+fi
 
 #+END_SRC
 
@@ -2063,17 +2071,17 @@ This file is brought in as part of Makefile target --config-emacs.
 
 We export the various dotfiles and package definitions described throughout this file. They are later appended to lists defined by machines that inherit the System definition.
 
-#+BEGIN_SRC scheme :tangle build/dl/computer.scm :noweb yes
-(define-module (dl computer)
-  #:export (%dl-packages-computer)
-  #:export (%dl-dotfiles-computer))
+#+BEGIN_SRC scheme :tangle build/dl/workstation.scm :noweb yes
+(define-module (dl workstation)
+  #:export (%dl-packages-workstation)
+  #:export (%dl-dotfiles-workstation))
 
-(define %dl-packages-computer
+(define %dl-packages-workstation
   (list
   <<packages-manifest>>
   ))
 
-(define %dl-dotfiles-computer
+(define %dl-dotfiles-workstation
   (list
   <<dotfiles-manifest>>
   ))
@@ -2081,13 +2089,13 @@ We export the various dotfiles and package definitions described throughout this
 
 This is our activation script, built from tangled sections in this file.
 
-#+BEGIN_SRC sh :tangle build/scripts/activate-computer.sh :noweb yes
+#+BEGIN_SRC sh :tangle build/scripts/activate-workstation.sh :noweb yes
 #!/bin/bash
 <<activate-shell-script>>
 #+END_SRC
 
 Initialization script. Check out Makefile for more info on how this is used.
-#+BEGIN_SRC sh :tangle build/scripts/initialize-computer.sh :noweb yes
+#+BEGIN_SRC sh :tangle build/scripts/initialize-workstation.sh :noweb yes
 #!/bin/bash
 <<initialize-shell-script>>
 #+END_SRC

@@ -17,14 +17,14 @@ CLEAR = \033[0m
 	}
 
 .ONESHELL:
---config-desktop: --config-computer
+--config-desktop: --config-workstation
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Desktop Workstation...${CLEAR}"
 		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation-Desktop.org")'
 	}
 
 .ONESHELL:
---config-computer: --config-emacs
+--config-workstation: --config-emacs
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Building Base Workstation...${CLEAR}"
 		emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "Workstation.org")'
@@ -65,7 +65,7 @@ CLEAR = \033[0m
 --activate-felix:
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Activating Guix Home...${CLEAR}"
-		./build/scripts/activate-computer.sh && \
+		./build/scripts/activate-workstation.sh && \
 			./build/scripts/activate-desktop.sh && \
 				./build/scripts/activate-felix.sh && \
 					echo -e "${GREEN_TERMINAL_OUTPUT}--> [Makefile] Finished activating Guix Home.${CLEAR}"
@@ -75,7 +75,7 @@ CLEAR = \033[0m
 --initalize-felix:
 	@{ \
 		echo -e "${GREEN_TERMINAL_OUTPUT}--> Initializing Guix System...${CLEAR}"
-		./build/scripts/initialize-computer.sh && \
+		./build/scripts/initialize-workstation.sh && \
 			./build/scripts/initialize-desktop.sh && \
 				./build/scripts/initialize-felix.sh && \
 					echo -e "${CYAN_TERMINAL_OUTPUT}--> [Makefile] Successfully initialized Guix System. Hooray!${CLEAR}"
