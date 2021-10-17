@@ -3,5 +3,6 @@
  '(
    "scrypt"
    "openssh"
+   "pinentry"
    "gnupg"
    ))
