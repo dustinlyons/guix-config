@@ -93,7 +93,7 @@
 
 * Channels
 
-Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_node/Channels.html#Channels][channels]]. As Guix strongly respects the [[https://www.gnu.org/distros/free-system-distribution-guidelines.html][freedom of computer users]], in order to download non-free software one must include non-free channels. I include one of these below (~nongnu)~, in addition to the default Guix channel definition.
+Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_node/Channels.html#Channels][channels]]. As Guix strongly respects the [[https://www.gnu.org/distros/free-system-distribution-guidelines.html][freedom of computer users]], to download non-free software one must include non-free channels. I include one of these below (~nongnu)~, in addition to the default Guix channel definition.
 
 #+NAME: channels
 #+BEGIN_SRC scheme :tangle build/channels.scm
@@ -121,9 +121,9 @@ Guix manages package definitions through [[https://guix.gnu.org/manual/en/html_n
 
 ** Dependencies
 
-Define all dependencies we need to to build the base definition.
-   
-#+NAME: base-definition 
+Define all dependencies we need to build the base definition.
+
+#+NAME: base-definition
 #+BEGIN_SRC scheme :tangle build/workstation.scm
 (define-module (workstation)
   #:use-module (gnu)
@@ -280,7 +280,7 @@ Now that we've prepped module definitions and labeled values to be used in our b
 
 Linux-lts kernel is chosen as the nvidia-driver in the nonfree channel was compiled against it. In the future I'd like to move away from lts to get more frequent patches.
 
-#+NAME: kernel 
+#+NAME: kernel
 #+BEGIN_SRC scheme :tangle build/workstation.scm
   (kernel linux-lts)
   (firmware (list linux-firmware))
@@ -318,7 +318,7 @@ Stub out an empty filesystem to be overriden later. Guix complains otherwise.
                  %base-file-systems))))
 #+END_SRC
 
-** X Window Systems 
+** X Window Systems
 
 These components and their respective dotfiles are shared across all computers.
 
@@ -579,8 +579,8 @@ headphone-soundcard = default
 ; Name of the master, speaker and headphone mixers
 ; Use the following command to list available mixer controls:
 ; $ amixer scontrols | sed -nr "s/.*'([[:alnum:]]+)'.*/\1/p"
-; If master, speaker or headphone-soundcard isn't the default, 
-; use `amixer -c # scontrols` instead where # is the number 
+; If master, speaker or headphone-soundcard isn't the default,
+; use `amixer -c # scontrols` instead where # is the number
 ; of the master, speaker or headphone soundcard respectively
 ;
 ; Default: Master
@@ -747,8 +747,8 @@ headphone-soundcard = default
 ; Name of the master, speaker and headphone mixers
 ; Use the following command to list available mixer controls:
 ; $ amixer scontrols | sed -nr "s/.*'([[:alnum:]]+)'.*/\1/p"
-; If master, speaker or headphone-soundcard isn't the default, 
-; use `amixer -c # scontrols` instead where # is the number 
+; If master, speaker or headphone-soundcard isn't the default,
+; use `amixer -c # scontrols` instead where # is the number
 ; of the master, speaker or headphone soundcard respectively
 ;
 ; Default: Master
@@ -1122,7 +1122,7 @@ dim-value = 1.0
 
 ; Set a DPI values used when rendering text
 ; This only affects scalable fonts
-; dpi = 
+; dpi =
 
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
@@ -1310,7 +1310,7 @@ icon_id = 'Hangouts'
 
 ** Printers
 *** Brother DL-2170W
-We use a trusty Brother Laser DL-2170W printer that I bought in high school (!). The thing is a beast with 2500+ page high yield toners. 
+We use a trusty Brother Laser DL-2170W printer that I bought in high school (!). The thing is a beast with 2500+ page high yield toners.
 
 **** Initialize
 
@@ -1374,7 +1374,7 @@ Attribute marker-change-time 1633725056
 
 ** Terminal
 *** Alacritty
-We chose Alacritty primarily because of it's blazing fast performance and never looked back. It does everything we need.
+We chose Alacritty primarily because of how performant it is and never looked back. It does everything we need.
 
 **** Guix Packages
 
@@ -1489,7 +1489,7 @@ I don't overcomplicate these; mainly just set ~main~ as default branch and give 
   email = dustin@zeroedlabs.com
   name = Dustin Lyons
   username = dlyons
-  
+
 [alias]
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
 #+END_SRC
@@ -1499,7 +1499,7 @@ Back then: vim golf. Now: emacs os.
 *** Vim
 These snippets get tangled into files that run as part of Makefile targets. Initialize, and Activate after every new Guix generation.
 
-**** Initialize 
+**** Initialize
 
 This runs after vim is installed for the first time.
 
@@ -2013,7 +2013,7 @@ This file is brought in as part of Makefile target --config-emacs.
   zeroed "A theme for my lab."
 
   ;; Specify terminal types
-  ((((class color) (min-colors #xFFFFFF)) 
+  ((((class color) (min-colors #xFFFFFF))
     ((class color) (min-colors #xFF)))
 
    ;; Define color palette
@@ -2071,7 +2071,7 @@ This file is brought in as part of Makefile target --config-emacs.
 
 * Export
 
-We export the various dotfiles and package definitions described throughout this file. They are later appended to lists defined by machines that inherit the System definition.
+We export the various dotfiles and package definitions described throughout this file.
 
 #+BEGIN_SRC scheme :tangle build/dl/workstation.scm :noweb yes
 (define-module (dl workstation)
