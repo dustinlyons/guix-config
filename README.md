@@ -51,14 +51,6 @@ Base definition of machines I'll work on day-to-day. Includes core system functi
 ###### Inherits from `Workstation`
 Sensible definitions for my Desktop machine that are likely to never change. Includes Openbox configuration, users and filesystems for Desktops, more dotfiles and package configuration.
 
-### Workstation-Laptop.org
-###### Inherits from `Workstation` _(Coming soon!)_
-Sensible definitions for my Laptop machine that are likely to never change. Includes i3 configuration, Thinkpad keybindings, battery optimizations, wifi, more dotfiles and package configuration.
-
-### Workstation-Laptop-Chevy.org
-###### Inherits from `Laptop` _(Coming soon!)_
-2021 Thinkpad x1 Nano on order.
-
 ### Workstation-Desktop-Felix.org
 ###### Inherits from `Desktop`
 Felix is my Desktop computer sitting in my office at home. This file contains a lightweight Operating System definition and an extensive Guix Home definition, as well as some associated dotfiles, initialization scripts, etc. I don't store anything meaningful in my Home directory (it's all kept in /data), so this script manages 100% of my it.
