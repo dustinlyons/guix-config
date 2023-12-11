@@ -13,6 +13,9 @@ The configuration of my operating system, Guix Linux, and day-to-day software (w
 
 No more traditional dotfiles. Hello Scheme and literate configuration.
 
+> [!IMPORTANT]
+> I moved to [Nix](https://github.com/dustinlyons/nixos-config) at the start of 2022, so this repository is no longer being maintained. However, I hope it still serves as an example for others exploring literate configuration and Guix.
+
 ## Why?
 With everything defined in this way I can treat my system as one program. It's 100% reproducible, bit by bit. My environments across laptop
 and desktop are exactly the same, staying in sync without headache. This is the way.
